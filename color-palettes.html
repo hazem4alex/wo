@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Palette Options</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    background: #0d0d0f;
+    color: #fff;
+    padding: 40px 32px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  .palettes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .palette-card {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .palette-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); }
+
+  /* ── Mini app preview ── */
+  .app-preview {
+    display: flex;
+    height: 320px;
+    font-size: 11px;
+  }
+
+  .sidebar {
+    width: 160px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 4px;
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 4px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    margin-bottom: 8px;
+  }
+  .logo-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .logo-text { font-size: 10px; font-weight: 600; line-height: 1.3; opacity: 0.9; }
+  .logo-sub { font-size: 9px; opacity: 0.45; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 8px;
+    border-radius: 7px;
+    opacity: 0.55;
+    font-size: 10.5px;
+    transition: opacity 0.15s;
+  }
+  .nav-item.active { opacity: 1; }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .topbar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    flex-shrink: 0;
+  }
+  .topbar-title { font-size: 12px; font-weight: 600; }
+  .topbar-actions { display: flex; gap: 6px; align-items: center; }
+  .avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600;
+  }
+
+  .content { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+
+  .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat-card {
+    border-radius: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .stat-label { font-size: 9px; opacity: 0.55; margin-bottom: 4px; }
+  .stat-value { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+  .stat-badge { display: inline-block; font-size: 8px; padding: 2px 6px; border-radius: 20px; margin-top: 4px; }
+
+  .table-block { border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); overflow: hidden; }
+  .table-header {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    padding: 7px 12px;
+    font-size: 9px;
+    font-weight: 600;
+    opacity: 0.45;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .table-row {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    padding: 7px 12px;
+    font-size: 9.5px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    align-items: center;
+  }
+  .status-pill {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 8px;
+    font-weight: 600;
+  }
+
+  /* ── Label row ── */
+  .palette-label {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .palette-name { font-size: 14px; font-weight: 600; }
+  .palette-desc { font-size: 11px; color: #666; margin-top: 2px; }
+  .swatches { display: flex; gap: 6px; }
+  .swatch { width: 18px; height: 18px; border-radius: 5px; }
+  .badge-rec {
+    font-size: 9px; font-weight: 700;
+    padding: 3px 8px; border-radius: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ══════════════════════════════════════════
+     PALETTE A — Midnight Sapphire + Amber
+  ══════════════════════════════════════════ */
+  .a .app-preview { background: #f0f4f8; }
+  .a .sidebar { background: #0d1b3e; }
+  .a .nav-item.active { background: rgba(245,162,0,0.12); color: #f5a200; }
+  .a .nav-dot { background: #f5a200; }
+  .a .nav-item { color: #a8b8d8; }
+  .a .topbar { background: #fff; }
+  .a .topbar-title { color: #0d1b3e; }
+  .a .avatar { background: #0d1b3e; color: #f5a200; }
+  .a .stat-card { background: #fff; }
+  .a .stat-value { color: #0d1b3e; }
+  .a .stat-badge { background: #fef3c7; color: #92400e; }
+  .a .table-block { background: #fff; }
+  .a .logo-icon { background: #f5a200; }
+  .a .status-pill.open { background: #dbeafe; color: #1e40af; }
+  .a .status-pill.done { background: #dcfce7; color: #166534; }
+  .a .status-pill.pend { background: #fef3c7; color: #92400e; }
+  .a .palette-label { background: #141420; }
+  .a .palette-name { color: #e8d5a3; }
+
+  /* ══════════════════════════════════════════
+     PALETTE B — Emerald Ministry
+  ══════════════════════════════════════════ */
+  .b .app-preview { background: #f4f6f4; }
+  .b .sidebar { background: #0a2218; }
+  .b .nav-item.active { background: rgba(52,211,153,0.12); color: #34d399; }
+  .b .nav-dot { background: #34d399; }
+  .b .nav-item { color: #7da896; }
+  .b .topbar { background: #fff; }
+  .b .topbar-title { color: #0a2218; }
+  .b .avatar { background: #0a2218; color: #34d399; }
+  .b .stat-card { background: #fff; }
+  .b .stat-value { color: #0a2218; }
+  .b .stat-badge { background: #d1fae5; color: #065f46; }
+  .b .table-block { background: #fff; }
+  .b .logo-icon { background: #34d399; }
+  .b .status-pill.open { background: #d1fae5; color: #065f46; }
+  .b .status-pill.done { background: #dcfce7; color: #166534; }
+  .b .status-pill.pend { background: #fef9c3; color: #713f12; }
+  .b .palette-label { background: #0d1a12; }
+  .b .palette-name { color: #a7f3d0; }
+
+  /* ══════════════════════════════════════════
+     PALETTE C — Slate + Copper (Dark UI)
+  ══════════════════════════════════════════ */
+  .c .app-preview { background: #1a1d24; }
+  .c .sidebar { background: #13151c; }
+  .c .nav-item.active { background: rgba(205,127,50,0.15); color: #cd7f32; }
+  .c .nav-dot { background: #cd7f32; }
+  .c .nav-item { color: #6b7280; }
+  .c .topbar { background: #1e2130; border-bottom-color: rgba(255,255,255,0.06); }
+  .c .topbar-title { color: #e2e8f0; }
+  .c .avatar { background: #cd7f32; color: #fff; }
+  .c .stat-card { background: #1e2130; border-color: rgba(255,255,255,0.06); }
+  .c .stat-label { color: #94a3b8; opacity: 1; }
+  .c .stat-value { color: #f1f5f9; }
+  .c .stat-badge { background: rgba(205,127,50,0.2); color: #cd7f32; }
+  .c .table-block { background: #1e2130; border-color: rgba(255,255,255,0.06); }
+  .c .table-header { color: #64748b; opacity: 1; }
+  .c .table-row { color: #cbd5e1; border-bottom-color: rgba(255,255,255,0.04); }
+  .c .logo-icon { background: linear-gradient(135deg,#cd7f32,#f59e0b); }
+  .c .status-pill.open { background: rgba(59,130,246,0.2); color: #93c5fd; }
+  .c .status-pill.done { background: rgba(34,197,94,0.15); color: #86efac; }
+  .c .status-pill.pend { background: rgba(245,158,11,0.15); color: #fcd34d; }
+  .c .palette-label { background: #0f1117; }
+  .c .palette-name { color: #e2c9a0; }
+
+  /* ══════════════════════════════════════════
+     PALETTE D — Gulf Blue (Sky + Navy)
+  ══════════════════════════════════════════ */
+  .d .app-preview { background: #f0f6ff; }
+  .d .sidebar { background: #0c2461; }
+  .d .nav-item.active { background: rgba(56,189,248,0.15); color: #38bdf8; }
+  .d .nav-dot { background: #38bdf8; }
+  .d .nav-item { color: #7eb3e8; }
+  .d .topbar { background: #fff; }
+  .d .topbar-title { color: #0c2461; }
+  .d .avatar { background: #38bdf8; color: #0c2461; }
+  .d .stat-card { background: #fff; }
+  .d .stat-value { color: #0c2461; }
+  .d .stat-badge { background: #e0f2fe; color: #0369a1; }
+  .d .table-block { background: #fff; }
+  .d .logo-icon { background: linear-gradient(135deg,#0ea5e9,#38bdf8); }
+  .d .status-pill.open { background: #dbeafe; color: #1e40af; }
+  .d .status-pill.done { background: #dcfce7; color: #166534; }
+  .d .status-pill.pend { background: #fef3c7; color: #92400e; }
+  .d .palette-label { background: #0a1628; }
+  .d .palette-name { color: #bae6fd; }
+</style>
+</head>
+<body>
+
+<h1>اختر نظام الألوان — Color Palette Options</h1>
+
+<div class="palettes">
+
+  <!-- A: Midnight Sapphire + Amber -->
+  <div class="palette-card a">
+    <div class="app-preview">
+      <div class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">⚡</div>
+          <div>
+            <div class="logo-text" style="color:#f5a200">وزارة الكهرباء</div>
+            <div class="logo-sub" style="color:#a8b8d8">والماء</div>
+          </div>
+        </div>
+        <div class="nav-item active">
+          <div class="nav-dot"></div> لوحة التحكم
+        </div>
+        <div class="nav-item"><div class="nav-dot" style="background:#a8b8d8;opacity:0.3"></div> أوامر العمل</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#a8b8d8;opacity:0.3"></div> المستهلكون</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#a8b8d8;opacity:0.3"></div> التقارير</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#a8b8d8;opacity:0.3"></div> الإعدادات</div>
+      </div>
+      <div class="main">
+        <div class="topbar">
+          <span class="topbar-title">لوحة التحكم</span>
+          <div class="topbar-actions">
+            <div class="avatar">م</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">إجمالي الإيرادات</div>
+              <div class="stat-value" style="color:#0d1b3e">12,480</div>
+              <div class="stat-badge">KWD +8%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">أوامر معلقة</div>
+              <div class="stat-value" style="color:#f5a200">34</div>
+              <div class="stat-badge">هذا الشهر</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">مكتمل</div>
+              <div class="stat-value" style="color:#16a34a">128</div>
+              <div class="stat-badge" style="background:#dcfce7;color:#166534">+12%</div>
+            </div>
+          </div>
+          <div class="table-block">
+            <div class="table-header">
+              <span>رقم الأمر</span><span>الحالة</span><span>المشرف</span><span>المبلغ</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260423</span>
+              <span><span class="status-pill open">مفتوح</span></span>
+              <span>أحمد</span><span style="color:#0d1b3e;font-weight:600">45.000</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260422</span>
+              <span><span class="status-pill done">مكتمل</span></span>
+              <span>خالد</span><span style="color:#0d1b3e;font-weight:600">120.000</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260421</span>
+              <span><span class="status-pill pend">معلق</span></span>
+              <span>سالم</span><span style="color:#0d1b3e;font-weight:600">88.500</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="palette-label">
+      <div>
+        <div class="palette-name">A — أزرق ليلي + ذهبي</div>
+        <div class="palette-desc">Midnight Sapphire + Amber — احترافي، حكومي</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="swatches">
+          <div class="swatch" style="background:#0d1b3e"></div>
+          <div class="swatch" style="background:#f5a200"></div>
+          <div class="swatch" style="background:#f0f4f8"></div>
+        </div>
+        <div class="badge-rec" style="background:rgba(245,162,0,0.15);color:#f5a200">موصى به</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B: Emerald Ministry -->
+  <div class="palette-card b">
+    <div class="app-preview">
+      <div class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">💧</div>
+          <div>
+            <div class="logo-text" style="color:#34d399">وزارة الكهرباء</div>
+            <div class="logo-sub" style="color:#7da896">والماء</div>
+          </div>
+        </div>
+        <div class="nav-item active">
+          <div class="nav-dot"></div> لوحة التحكم
+        </div>
+        <div class="nav-item"><div class="nav-dot" style="background:#7da896;opacity:0.3"></div> أوامر العمل</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#7da896;opacity:0.3"></div> المستهلكون</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#7da896;opacity:0.3"></div> التقارير</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#7da896;opacity:0.3"></div> الإعدادات</div>
+      </div>
+      <div class="main">
+        <div class="topbar">
+          <span class="topbar-title">لوحة التحكم</span>
+          <div class="topbar-actions"><div class="avatar">م</div></div>
+        </div>
+        <div class="content">
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">إجمالي الإيرادات</div>
+              <div class="stat-value" style="color:#0a2218">12,480</div>
+              <div class="stat-badge">KWD +8%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">أوامر معلقة</div>
+              <div class="stat-value" style="color:#059669">34</div>
+              <div class="stat-badge">هذا الشهر</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">مكتمل</div>
+              <div class="stat-value" style="color:#16a34a">128</div>
+              <div class="stat-badge" style="background:#dcfce7;color:#166534">+12%</div>
+            </div>
+          </div>
+          <div class="table-block">
+            <div class="table-header">
+              <span>رقم الأمر</span><span>الحالة</span><span>المشرف</span><span>المبلغ</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260423</span>
+              <span><span class="status-pill open">مفتوح</span></span>
+              <span>أحمد</span><span style="color:#0a2218;font-weight:600">45.000</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260422</span>
+              <span><span class="status-pill done">مكتمل</span></span>
+              <span>خالد</span><span style="color:#0a2218;font-weight:600">120.000</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260421</span>
+              <span><span class="status-pill pend">معلق</span></span>
+              <span>سالم</span><span style="color:#0a2218;font-weight:600">88.500</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="palette-label">
+      <div>
+        <div class="palette-name">B — أخضر زمردي + أبيض</div>
+        <div class="palette-desc">Emerald Ministry — طبيعي، مياه وطاقة</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="swatches">
+          <div class="swatch" style="background:#0a2218"></div>
+          <div class="swatch" style="background:#34d399"></div>
+          <div class="swatch" style="background:#f4f6f4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C: Slate + Copper Dark -->
+  <div class="palette-card c">
+    <div class="app-preview">
+      <div class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">⚡</div>
+          <div>
+            <div class="logo-text" style="color:#cd7f32">وزارة الكهرباء</div>
+            <div class="logo-sub" style="color:#6b7280">والماء</div>
+          </div>
+        </div>
+        <div class="nav-item active">
+          <div class="nav-dot"></div> لوحة التحكم
+        </div>
+        <div class="nav-item"><div class="nav-dot" style="background:#6b7280;opacity:0.4"></div> أوامر العمل</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#6b7280;opacity:0.4"></div> المستهلكون</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#6b7280;opacity:0.4"></div> التقارير</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#6b7280;opacity:0.4"></div> الإعدادات</div>
+      </div>
+      <div class="main">
+        <div class="topbar">
+          <span class="topbar-title">لوحة التحكم</span>
+          <div class="topbar-actions"><div class="avatar">م</div></div>
+        </div>
+        <div class="content">
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">إجمالي الإيرادات</div>
+              <div class="stat-value">12,480</div>
+              <div class="stat-badge">KWD +8%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">أوامر معلقة</div>
+              <div class="stat-value" style="color:#fcd34d">34</div>
+              <div class="stat-badge">هذا الشهر</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">مكتمل</div>
+              <div class="stat-value" style="color:#86efac">128</div>
+              <div class="stat-badge" style="background:rgba(34,197,94,0.15);color:#86efac">+12%</div>
+            </div>
+          </div>
+          <div class="table-block">
+            <div class="table-header">
+              <span>رقم الأمر</span><span>الحالة</span><span>المشرف</span><span>المبلغ</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260423</span>
+              <span><span class="status-pill open">مفتوح</span></span>
+              <span>أحمد</span><span style="color:#93c5fd;font-weight:600">45.000</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260422</span>
+              <span><span class="status-pill done">مكتمل</span></span>
+              <span>خالد</span><span style="color:#93c5fd;font-weight:600">120.000</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260421</span>
+              <span><span class="status-pill pend">معلق</span></span>
+              <span>سالم</span><span style="color:#93c5fd;font-weight:600">88.500</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="palette-label">
+      <div>
+        <div class="palette-name">C — داكن + نحاسي</div>
+        <div class="palette-desc">Slate Dark + Copper — عصري، تقني، أنيق</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="swatches">
+          <div class="swatch" style="background:#13151c"></div>
+          <div class="swatch" style="background:#cd7f32"></div>
+          <div class="swatch" style="background:#1e2130"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D: Gulf Blue -->
+  <div class="palette-card d">
+    <div class="app-preview">
+      <div class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">🌊</div>
+          <div>
+            <div class="logo-text" style="color:#38bdf8">وزارة الكهرباء</div>
+            <div class="logo-sub" style="color:#7eb3e8">والماء</div>
+          </div>
+        </div>
+        <div class="nav-item active">
+          <div class="nav-dot"></div> لوحة التحكم
+        </div>
+        <div class="nav-item"><div class="nav-dot" style="background:#7eb3e8;opacity:0.3"></div> أوامر العمل</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#7eb3e8;opacity:0.3"></div> المستهلكون</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#7eb3e8;opacity:0.3"></div> التقارير</div>
+        <div class="nav-item"><div class="nav-dot" style="background:#7eb3e8;opacity:0.3"></div> الإعدادات</div>
+      </div>
+      <div class="main">
+        <div class="topbar">
+          <span class="topbar-title">لوحة التحكم</span>
+          <div class="topbar-actions"><div class="avatar">م</div></div>
+        </div>
+        <div class="content">
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-label">إجمالي الإيرادات</div>
+              <div class="stat-value" style="color:#0c2461">12,480</div>
+              <div class="stat-badge">KWD +8%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">أوامر معلقة</div>
+              <div class="stat-value" style="color:#0369a1">34</div>
+              <div class="stat-badge">هذا الشهر</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">مكتمل</div>
+              <div class="stat-value" style="color:#16a34a">128</div>
+              <div class="stat-badge" style="background:#dcfce7;color:#166534">+12%</div>
+            </div>
+          </div>
+          <div class="table-block">
+            <div class="table-header">
+              <span>رقم الأمر</span><span>الحالة</span><span>المشرف</span><span>المبلغ</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260423</span>
+              <span><span class="status-pill open">مفتوح</span></span>
+              <span>أحمد</span><span style="color:#0c2461;font-weight:600">45.000</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260422</span>
+              <span><span class="status-pill done">مكتمل</span></span>
+              <span>خالد</span><span style="color:#0c2461;font-weight:600">120.000</span>
+            </div>
+            <div class="table-row">
+              <span>WO-20260421</span>
+              <span><span class="status-pill pend">معلق</span></span>
+              <span>سالم</span><span style="color:#0c2461;font-weight:600">88.500</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="palette-label">
+      <div>
+        <div class="palette-name">D — أزرق خليجي + سماوي</div>
+        <div class="palette-desc">Gulf Blue + Sky — رسمي، خليجي، نظيف</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="swatches">
+          <div class="swatch" style="background:#0c2461"></div>
+          <div class="swatch" style="background:#38bdf8"></div>
+          <div class="swatch" style="background:#f0f6ff"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="text-align:center;margin-top:32px;font-size:11px;color:#444;letter-spacing:0.06em">
+  اختر الخيار المفضل وسيتم تطبيقه على كامل النظام — Pick your preferred option and it will be applied system-wide
+</p>
+
+</body>
+</html>

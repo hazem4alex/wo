@@ -40,13 +40,16 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
   return (
-    <div className={`fixed inset-y-0 end-0 z-40 w-64 bg-[#0f172a] flex flex-col overflow-y-auto transition-transform duration-300 md:relative md:translate-x-0 ${open ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+    <div className={`fixed inset-y-0 end-0 z-40 w-64 flex flex-col overflow-y-auto transition-transform duration-300 md:relative md:translate-x-0 ${open ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`} style={{ background: '#13151c' }}>
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-700">
-        <div className="w-8 h-8 bg-amber-400 rounded flex items-center justify-center">
-          <Zap className="w-5 h-5 text-slate-900" />
+      <div className="flex items-center gap-3 px-4 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="w-8 h-8 rounded flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#cd7f32,#f59e0b)' }}>
+          <Zap className="w-5 h-5 text-white" />
         </div>
-        <span className="text-white font-bold text-sm">ALSHAMEL</span>
+        <div>
+          <div className="text-xs font-bold" style={{ color: '#cd7f32' }}>وزارة الكهرباء</div>
+          <div className="text-xs" style={{ color: '#4b5563' }}>والماء</div>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -56,7 +59,7 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
 
         {/* Work Orders */}
         <div className="pt-2">
-          <p className="px-3 text-xs text-slate-500 uppercase tracking-wider mb-1">{t('workOrders')}</p>
+          <p className="px-3 text-xs uppercase tracking-wider mb-1" style={{ color: '#374151' }}>{t('workOrders')}</p>
           <NavLink href="/work-orders" icon={<ClipboardList className="w-4 h-4" />} label={t('workOrders')} isActive={isActive('/work-orders') && !pathname.startsWith('/work-orders/new')} onClose={onClose} />
           <NavLink href="/work-orders/new" icon={<PlusCircle className="w-4 h-4" />} label={t('addWorkOrder')} isActive={isActive('/work-orders/new')} onClose={onClose} />
         </div>
@@ -131,8 +134,8 @@ function NavLink({ href, icon, label, isActive, indent, onClose }: {
         'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
         indent ? 'ps-8' : '',
         isActive
-          ? 'bg-blue-700 text-white'
-          : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+          ? 'text-[#cd7f32] bg-[rgba(205,127,50,0.12)]'
+          : 'text-[#64748b] hover:bg-[#1e2130] hover:text-[#cbd5e1]'
       )}
     >
       {icon && <span className="flex-shrink-0">{icon}</span>}
@@ -152,7 +155,7 @@ function CollapsibleNav({ label, icon, isOpen, onToggle, children }: {
     <div>
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm text-slate-400 hover:bg-slate-700 hover:text-white transition-colors"
+        className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm transition-colors text-[#64748b] hover:bg-[#1e2130] hover:text-[#cbd5e1]"
       >
         <div className="flex items-center gap-3">
           {icon}

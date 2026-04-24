@@ -14,13 +14,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = cookieStore.get('locale')?.value ?? 'ar'
   const validLocale = ['ar', 'en'].includes(locale) ? locale : 'ar'
   const dir = validLocale === 'ar' ? 'rtl' : 'ltr'
-  const theme = cookieStore.get('theme')?.value ?? 'light'
-  const isDark = theme === 'dark'
   const messages = await getMessages()
 
   return (
-    <html lang={validLocale} dir={dir} className={isDark ? 'dark' : ''}>
-      <body className="bg-gray-50 min-h-screen antialiased">
+    <html lang={validLocale} dir={dir}>
+      <body className="min-h-screen antialiased" style={{ background: '#1a1d24' }}>
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

@@ -32,7 +32,7 @@ export function AppShell({ locale, theme, userName, systemName, children }: AppS
           systemName={systemName}
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         />
-        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-6">
+        <main className="flex-1 overflow-y-auto p-6" style={{ background: '#1a1d24' }}>
           {children}
         </main>
       </div>
