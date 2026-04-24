@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAccessToken } from './lib/auth'
 
-const PUBLIC_PATHS = ['/login', '/api/auth/login']
-
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public paths and static assets
   if (
-    PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/api/auth/') ||
+    pathname.startsWith('/api/locale') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon')
   ) {
