@@ -25,7 +25,7 @@ function calcTotal(item: BillingItem): number {
 }
 
 export function WorkOrderForm({ consumers, governorates, areas, offices, supervisors, services, paymentMethods }: {
-  consumers: Array<{ id: string; full_name: string; consumer_code: string }>
+  consumers: Array<{ id: string; full_name: string; consumer_code: string; consumer_no?: string; national_id?: string; phone?: string }>
   governorates: Array<{ id: string; name_ar: string }>
   areas: Array<{ id: string; name_ar: string; governorate_id: string }>
   offices: Array<{ id: string; name_ar: string; area_id: string }>
@@ -69,10 +69,17 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
     return svc?.require_water_meter
   })
 
-  const filteredConsumers = useMemo(() =>
-    consumers.filter(c => !consumerSearch || c.full_name.includes(consumerSearch) || c.consumer_code?.includes(consumerSearch)).slice(0, 50),
-    [consumers, consumerSearch]
-  )
+  const filteredConsumers = useMemo(() => {
+    if (!consumerSearch) return consumers.slice(0, 50)
+    const q = consumerSearch.toLowerCase()
+    return consumers.filter(c =>
+      c.full_name.toLowerCase().includes(q) ||
+      c.consumer_code?.includes(q) ||
+      c.consumer_no?.includes(q) ||
+      c.national_id?.includes(q) ||
+      c.phone?.includes(q)
+    ).slice(0, 50)
+  }, [consumers, consumerSearch])
 
   const addItem = (svc?: ServiceOption) => {
     const newItem: BillingItem = {
@@ -143,13 +150,17 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
           <div className="space-y-1">
             <Label>المستهلك <span className="text-red-500">*</span></Label>
             <div className="flex gap-2">
-              <Input value={consumerSearch} onChange={e => setConsumerSearch(e.target.value)} placeholder="بحث عن مستهلك..." className="max-w-xs" />
+              <Input value={consumerSearch} onChange={e => setConsumerSearch(e.target.value)} placeholder="بحث بالاسم / الرقم المدني / رقم الهاتف / الكود..." className="w-full" />
             </div>
             <Select value={consumerId} onValueChange={v => setConsumerId(v ?? '')}>
               <SelectTrigger><SelectValue placeholder="اختر المستهلك" /></SelectTrigger>
               <SelectContent>
                 {filteredConsumers.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.full_name} {c.consumer_code ? `(${c.consumer_code})` : ''}</SelectItem>
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.full_name}
+                    {c.consumer_code ? ` — ${c.consumer_code}` : ''}
+                    {c.national_id ? ` — ${c.national_id}` : ''}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
