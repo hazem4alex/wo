@@ -4,7 +4,7 @@ import { WorkOrderForm } from '@/components/work-orders/work-order-form'
 
 export default async function NewWorkOrderPage() {
   const [consumersRes, govRes, areasRes, officesRes, supervisorsRes, servicesRes, paymentRes] = await Promise.all([
-    pool.query('SELECT id, full_name, consumer_code, consumer_no, national_id, phone FROM consumer WHERE is_active=true ORDER BY full_name LIMIT 1000'),
+    pool.query('SELECT id, full_name, consumer_code, consumer_no, national_id, phone, street, house_no, apartment_no, governorate_text, area_text FROM consumer WHERE is_active=true ORDER BY full_name LIMIT 1000'),
     pool.query('SELECT id, name_ar FROM governorate ORDER BY name_ar'),
     pool.query('SELECT id, name_ar, governorate_id FROM area ORDER BY name_ar'),
     pool.query('SELECT id, name_ar, area_id FROM office WHERE is_active=true ORDER BY name_ar'),

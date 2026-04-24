@@ -25,7 +25,7 @@ function calcTotal(item: BillingItem): number {
 }
 
 export function WorkOrderForm({ consumers, governorates, areas, offices, supervisors, services, paymentMethods }: {
-  consumers: Array<{ id: string; full_name: string; consumer_code: string; consumer_no?: string; national_id?: string; phone?: string }>
+  consumers: Array<{ id: string; full_name: string; consumer_code: string; consumer_no?: string; national_id?: string; phone?: string; street?: string; house_no?: string; apartment_no?: string; governorate_text?: string; area_text?: string }>
   governorates: Array<{ id: string; name_ar: string }>
   areas: Array<{ id: string; name_ar: string; governorate_id: string }>
   offices: Array<{ id: string; name_ar: string; area_id: string }>
@@ -43,6 +43,10 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
   const [paymentMethodId, setPaymentMethodId] = useState('')
   const [notes, setNotes] = useState('')
   const [consumerSearch, setConsumerSearch] = useState('')
+  // Address fields
+  const [street, setStreet] = useState('')
+  const [houseNo, setHouseNo] = useState('')
+  const [apartmentNo, setApartmentNo] = useState('')
   // Meter fields
   const [elecOldNo, setElecOldNo] = useState('')
   const [elecNewNo, setElecNewNo] = useState('')
@@ -124,6 +128,9 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
         governorate_id: governorateId || undefined,
         area_id: areaId || undefined,
         notes,
+        street: street || undefined,
+        house_no: houseNo || undefined,
+        apartment_no: apartmentNo || undefined,
         electricity_meter_old_no: elecOldNo || undefined,
         electricity_meter_new_no: elecNewNo || undefined,
         electricity_old_reading: elecOldReading ? Number(elecOldReading) : 0,
@@ -152,7 +159,15 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
             <div className="flex gap-2">
               <Input value={consumerSearch} onChange={e => setConsumerSearch(e.target.value)} placeholder="بحث بالاسم / الرقم المدني / رقم الهاتف / الكود..." className="w-full" />
             </div>
-            <Select value={consumerId} onValueChange={v => setConsumerId(v ?? '')}>
+            <Select value={consumerId} onValueChange={v => {
+              setConsumerId(v ?? '')
+              const c = consumers.find(c => c.id === v)
+              if (c) {
+                setStreet(c.street ?? '')
+                setHouseNo(c.house_no ?? '')
+                setApartmentNo(c.apartment_no ?? '')
+              }
+            }}>
               <SelectTrigger><SelectValue placeholder="اختر المستهلك" /></SelectTrigger>
               <SelectContent>
                 {filteredConsumers.map(c => (
@@ -164,6 +179,22 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Address */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <Label>الشارع</Label>
+              <Input value={street} onChange={e => setStreet(e.target.value)} placeholder="اسم الشارع" />
+            </div>
+            <div className="space-y-1">
+              <Label>رقم المنزل</Label>
+              <Input value={houseNo} onChange={e => setHouseNo(e.target.value)} placeholder="رقم المنزل" />
+            </div>
+            <div className="space-y-1">
+              <Label>رقم الشقة</Label>
+              <Input value={apartmentNo} onChange={e => setApartmentNo(e.target.value)} placeholder="رقم الشقة" />
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -272,34 +303,38 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
         </CardContent>
       </Card>
 
-      {/* Meter fields — conditionally shown */}
-      {requiresElectricity && (
-        <Card>
-          <CardHeader><CardTitle className="text-base">بيانات عداد الكهرباء</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1"><Label>رقم العداد القديم</Label><Input value={elecOldNo} onChange={e => setElecOldNo(e.target.value)} dir="ltr" /></div>
-              <div className="space-y-1"><Label>رقم العداد الجديد</Label><Input value={elecNewNo} onChange={e => setElecNewNo(e.target.value)} dir="ltr" /></div>
-              <div className="space-y-1"><Label>القراءة القديمة</Label><Input type="number" value={elecOldReading} onChange={e => setElecOldReading(e.target.value)} dir="ltr" /></div>
-              <div className="space-y-1"><Label>القراءة الجديدة</Label><Input type="number" value={elecNewReading} onChange={e => setElecNewReading(e.target.value)} dir="ltr" /></div>
+      {/* Meter fields — always visible */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">العدادات</CardTitle></CardHeader>
+        <CardContent className="space-y-6">
+          {/* Electricity */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="text-amber-500">⚡</span>
+              <span className="text-sm font-medium text-amber-700">عداد الكهرباء</span>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {requiresWater && (
-        <Card>
-          <CardHeader><CardTitle className="text-base">بيانات عداد الماء</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1"><Label>رقم العداد القديم</Label><Input value={waterOldNo} onChange={e => setWaterOldNo(e.target.value)} dir="ltr" /></div>
-              <div className="space-y-1"><Label>رقم العداد الجديد</Label><Input value={waterNewNo} onChange={e => setWaterNewNo(e.target.value)} dir="ltr" /></div>
-              <div className="space-y-1"><Label>القراءة القديمة</Label><Input type="number" value={waterOldReading} onChange={e => setWaterOldReading(e.target.value)} dir="ltr" /></div>
-              <div className="space-y-1"><Label>القراءة الجديدة</Label><Input type="number" value={waterNewReading} onChange={e => setWaterNewReading(e.target.value)} dir="ltr" /></div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="space-y-1"><Label>الرقم القديم</Label><Input value={elecOldNo} onChange={e => setElecOldNo(e.target.value)} dir="ltr" placeholder="رقم العداد القديم" /></div>
+              <div className="space-y-1"><Label>الرقم الجديد</Label><Input value={elecNewNo} onChange={e => setElecNewNo(e.target.value)} dir="ltr" placeholder="رقم العداد الجديد" /></div>
+              <div className="space-y-1"><Label>القراءة القديمة</Label><Input type="number" step="0.001" value={elecOldReading} onChange={e => setElecOldReading(e.target.value)} dir="ltr" /></div>
+              <div className="space-y-1"><Label>القراءة الجديدة</Label><Input type="number" step="0.001" value={elecNewReading} onChange={e => setElecNewReading(e.target.value)} dir="ltr" /></div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+          {/* Water */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="text-sky-500">💧</span>
+              <span className="text-sm font-medium text-sky-700">عداد المياه</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="space-y-1"><Label>الرقم القديم</Label><Input value={waterOldNo} onChange={e => setWaterOldNo(e.target.value)} dir="ltr" placeholder="رقم العداد القديم" /></div>
+              <div className="space-y-1"><Label>الرقم الجديد</Label><Input value={waterNewNo} onChange={e => setWaterNewNo(e.target.value)} dir="ltr" placeholder="رقم العداد الجديد" /></div>
+              <div className="space-y-1"><Label>القراءة القديمة</Label><Input type="number" step="0.001" value={waterOldReading} onChange={e => setWaterOldReading(e.target.value)} dir="ltr" /></div>
+              <div className="space-y-1"><Label>القراءة الجديدة</Label><Input type="number" step="0.001" value={waterNewReading} onChange={e => setWaterNewReading(e.target.value)} dir="ltr" /></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Submit */}
       <div className="flex justify-end gap-3">
