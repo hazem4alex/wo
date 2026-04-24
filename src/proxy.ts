@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAccessToken } from './lib/auth'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public paths and static assets
@@ -9,6 +9,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/login') ||
     pathname.startsWith('/api/auth/') ||
     pathname.startsWith('/api/locale') ||
+    pathname.startsWith('/api/theme') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon')
   ) {
