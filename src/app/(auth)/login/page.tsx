@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { Zap } from 'lucide-react'
+import { Zap, Droplets } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -42,30 +42,50 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex" dir="rtl">
       <div className="hidden lg:flex lg:w-1/2 bg-[#0f172a] flex-col items-center justify-center p-12">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-16 h-16 bg-amber-400 rounded-xl flex items-center justify-center">
-            <Zap className="w-10 h-10 text-slate-900" />
-          </div>
-          <div className="text-white">
-            <div className="text-2xl font-bold">ALSHAMEL</div>
-            <div className="text-slate-400 text-sm">نظام إدارة الكهرباء</div>
+        {/* Ministry emblem */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="relative w-20 h-20 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full bg-amber-400/20 border-2 border-amber-400/40" />
+            <div className="absolute inset-2 rounded-full bg-amber-400/10 border border-amber-400/30" />
+            <div className="flex gap-1 z-10">
+              <Zap className="w-7 h-7 text-amber-400" />
+              <Droplets className="w-7 h-7 text-sky-400" />
+            </div>
           </div>
         </div>
+        <div className="text-center mb-6">
+          <div className="text-white text-xl font-bold mb-1">وزارة الكهرباء والماء</div>
+          <div className="text-amber-400 text-sm font-medium">Ministry of Electricity & Water</div>
+          <div className="text-slate-500 text-xs mt-1">دولة الكويت</div>
+        </div>
+        <div className="w-16 border-t border-slate-700 my-4" />
         <p className="text-slate-400 text-center text-sm max-w-xs leading-relaxed">
-          نظرة عامة على إحصائيات نظام إدارة الكهرباء والماء لوزارة الكهرباء والماء
+          نظام إدارة أوامر العمل للخدمات الميدانية
         </p>
+        <div className="mt-8 grid grid-cols-2 gap-4 w-full max-w-xs">
+          <div className="bg-slate-800/50 rounded-lg p-3 text-center">
+            <Zap className="w-5 h-5 text-amber-400 mx-auto mb-1" />
+            <div className="text-slate-400 text-xs">خدمات الكهرباء</div>
+          </div>
+          <div className="bg-slate-800/50 rounded-lg p-3 text-center">
+            <Droplets className="w-5 h-5 text-sky-400 mx-auto mb-1" />
+            <div className="text-slate-400 text-xs">خدمات المياه</div>
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
         <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
-          <div className="flex items-center justify-center gap-3 mb-8 lg:hidden">
-            <div className="w-10 h-10 bg-amber-400 rounded-lg flex items-center justify-center">
-              <Zap className="w-6 h-6 text-slate-900" />
+          <div className="flex items-center justify-center gap-2 mb-8 lg:hidden">
+            <div className="w-9 h-9 bg-amber-400 rounded-lg flex items-center justify-center">
+              <Zap className="w-5 h-5 text-slate-900" />
             </div>
-            <span className="text-xl font-bold text-slate-800">ALSHAMEL</span>
+            <div className="w-9 h-9 bg-sky-500 rounded-lg flex items-center justify-center">
+              <Droplets className="w-5 h-5 text-white" />
+            </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2 text-center">{t('login')}</h1>
-          <p className="text-gray-500 text-sm text-center mb-8">نظام إدارة الكهرباء والماء</p>
+          <p className="text-gray-500 text-sm text-center mb-8">وزارة الكهرباء والماء — دولة الكويت</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
