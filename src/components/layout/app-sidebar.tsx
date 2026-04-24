@@ -9,8 +9,6 @@ import {
   ClipboardList,
   PlusCircle,
   Folder,
-  Search,
-  Building2,
   BarChart3,
   Settings,
   ChevronDown,
@@ -27,8 +25,7 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
   const t = useTranslations('nav')
   const pathname = usePathname()
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    mainFiles: false,
-    searchFiles: true,
+    mainFiles: true,
     reports: false,
     settings: false,
   })
@@ -74,19 +71,10 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
           <NavLink href="/governorates" label={t('governorates')} isActive={isActive('/governorates')} indent onClose={onClose} />
           <NavLink href="/areas" label={t('areas')} isActive={isActive('/areas')} indent onClose={onClose} />
           <NavLink href="/offices" label={t('offices')} isActive={isActive('/offices')} indent onClose={onClose} />
-        </CollapsibleNav>
-
-        {/* Search Files */}
-        <CollapsibleNav
-          label={t('searchFiles')}
-          icon={<Search className="w-4 h-4" />}
-          isOpen={expanded.searchFiles}
-          onToggle={() => toggle('searchFiles')}
-        >
           <NavLink href="/consumers" label={t('consumers')} isActive={isActive('/consumers')} indent onClose={onClose} />
           <NavLink href="/services" label={t('services')} isActive={isActive('/services')} indent onClose={onClose} />
           <NavLink href="/supervisors" label={t('supervisors')} isActive={isActive('/supervisors')} indent onClose={onClose} />
-          <NavLink href="/offices" label={t('offices')} isActive={isActive('/offices')} indent onClose={onClose} />
+          <NavLink href="/settings/payment-methods" label={t('paymentMethods')} isActive={isActive('/settings/payment-methods')} indent onClose={onClose} />
         </CollapsibleNav>
 
         {/* Reports */}
@@ -111,7 +99,6 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
         >
           <NavLink href="/settings/users" label={t('users')} isActive={isActive('/settings/users')} indent onClose={onClose} />
           <NavLink href="/settings/roles" label={t('roles')} isActive={isActive('/settings/roles')} indent onClose={onClose} />
-          <NavLink href="/settings/payment-methods" label={t('paymentMethods')} isActive={isActive('/settings/payment-methods')} indent onClose={onClose} />
         </CollapsibleNav>
       </nav>
     </div>
