@@ -15,7 +15,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const dir = validLocale === 'ar' ? 'rtl' : 'ltr'
 
   return (
-    <html lang={validLocale} dir={dir}>
+    <html lang={validLocale} dir={dir} suppressHydrationWarning>
       <body className="bg-gray-50 min-h-screen antialiased">
         <Providers>{children}</Providers>
       </body>

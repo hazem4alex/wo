@@ -7,6 +7,7 @@ import { WorkOrderStatusModal } from '@/components/work-orders/status-modal'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
+import { formatKWD } from '@/lib/format'
 
 export default async function WorkOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -94,16 +95,16 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
                     <tr key={item.id} className="border-t">
                       <td className="p-2">{item.service_name_ar}</td>
                       <td className="p-2 text-center">{item.quantity}</td>
-                      <td className="p-2 text-center">{Number(item.unit_price).toFixed(3)}</td>
-                      <td className="p-2 text-center text-red-500">{Number(item.discount_amount).toFixed(3)}</td>
-                      <td className="p-2 text-center text-orange-500">{Number(item.fine_amount).toFixed(3)}</td>
-                      <td className="p-2 text-center text-green-600 font-medium">{Number(item.total_amount).toFixed(3)}</td>
+                      <td className="p-2 text-center">{formatKWD(item.unit_price)}</td>
+                      <td className="p-2 text-center text-red-500">{formatKWD(item.discount_amount)}</td>
+                      <td className="p-2 text-center text-orange-500">{formatKWD(item.fine_amount)}</td>
+                      <td className="p-2 text-center text-green-600 font-medium">{formatKWD(item.total_amount)}</td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot><tr className="border-t bg-gray-50 font-semibold">
                   <td colSpan={5} className="p-2 text-end">صافي المبلغ:</td>
-                  <td className="p-2 text-center text-green-700">{Number(wo.net_amount).toFixed(3)}</td>
+                  <td className="p-2 text-center text-green-700">{formatKWD(wo.net_amount)}</td>
                 </tr></tfoot>
               </table>
             </CardContent>

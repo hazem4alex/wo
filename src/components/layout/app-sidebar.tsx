@@ -52,13 +52,13 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 px-2 py-4 space-y-1">
         {/* Dashboard */}
-        <NavLink href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label={t('dashboard')} isActive={isActive('/dashboard')} />
+        <NavLink href="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label={t('dashboard')} isActive={isActive('/dashboard')} onClose={onClose} />
 
         {/* Work Orders */}
         <div className="pt-2">
           <p className="px-3 text-xs text-slate-500 uppercase tracking-wider mb-1">{t('workOrders')}</p>
-          <NavLink href="/work-orders" icon={<ClipboardList className="w-4 h-4" />} label={t('workOrders')} isActive={isActive('/work-orders') && !pathname.startsWith('/work-orders/new')} />
-          <NavLink href="/work-orders/new" icon={<PlusCircle className="w-4 h-4" />} label={t('addWorkOrder')} isActive={isActive('/work-orders/new')} />
+          <NavLink href="/work-orders" icon={<ClipboardList className="w-4 h-4" />} label={t('workOrders')} isActive={isActive('/work-orders') && !pathname.startsWith('/work-orders/new')} onClose={onClose} />
+          <NavLink href="/work-orders/new" icon={<PlusCircle className="w-4 h-4" />} label={t('addWorkOrder')} isActive={isActive('/work-orders/new')} onClose={onClose} />
         </div>
 
         {/* Main Files */}
@@ -68,9 +68,9 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
           isOpen={expanded.mainFiles}
           onToggle={() => toggle('mainFiles')}
         >
-          <NavLink href="/governorates" label={t('governorates')} isActive={isActive('/governorates')} indent />
-          <NavLink href="/areas" label={t('areas')} isActive={isActive('/areas')} indent />
-          <NavLink href="/offices" label={t('offices')} isActive={isActive('/offices')} indent />
+          <NavLink href="/governorates" label={t('governorates')} isActive={isActive('/governorates')} indent onClose={onClose} />
+          <NavLink href="/areas" label={t('areas')} isActive={isActive('/areas')} indent onClose={onClose} />
+          <NavLink href="/offices" label={t('offices')} isActive={isActive('/offices')} indent onClose={onClose} />
         </CollapsibleNav>
 
         {/* Search Files */}
@@ -80,10 +80,10 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
           isOpen={expanded.searchFiles}
           onToggle={() => toggle('searchFiles')}
         >
-          <NavLink href="/consumers" label={t('consumers')} isActive={isActive('/consumers')} indent />
-          <NavLink href="/services" label={t('services')} isActive={isActive('/services')} indent />
-          <NavLink href="/supervisors" label={t('supervisors')} isActive={isActive('/supervisors')} indent />
-          <NavLink href="/offices" label={t('offices')} isActive={isActive('/offices')} indent />
+          <NavLink href="/consumers" label={t('consumers')} isActive={isActive('/consumers')} indent onClose={onClose} />
+          <NavLink href="/services" label={t('services')} isActive={isActive('/services')} indent onClose={onClose} />
+          <NavLink href="/supervisors" label={t('supervisors')} isActive={isActive('/supervisors')} indent onClose={onClose} />
+          <NavLink href="/offices" label={t('offices')} isActive={isActive('/offices')} indent onClose={onClose} />
         </CollapsibleNav>
 
         {/* Reports */}
@@ -93,10 +93,10 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
           isOpen={expanded.reports}
           onToggle={() => toggle('reports')}
         >
-          <NavLink href="/reports/work-orders" label={t('workOrdersReport')} isActive={isActive('/reports/work-orders')} indent />
-          <NavLink href="/reports/revenue" label={t('revenueReport')} isActive={isActive('/reports/revenue')} indent />
-          <NavLink href="/reports/supervisors" label={t('supervisorsReport')} isActive={isActive('/reports/supervisors')} indent />
-          <NavLink href="/reports/consumers-by-area" label={t('consumersReport')} isActive={isActive('/reports/consumers-by-area')} indent />
+          <NavLink href="/reports/work-orders" label={t('workOrdersReport')} isActive={isActive('/reports/work-orders')} indent onClose={onClose} />
+          <NavLink href="/reports/revenue" label={t('revenueReport')} isActive={isActive('/reports/revenue')} indent onClose={onClose} />
+          <NavLink href="/reports/supervisors" label={t('supervisorsReport')} isActive={isActive('/reports/supervisors')} indent onClose={onClose} />
+          <NavLink href="/reports/consumers-by-area" label={t('consumersReport')} isActive={isActive('/reports/consumers-by-area')} indent onClose={onClose} />
         </CollapsibleNav>
 
         {/* Settings */}
@@ -106,25 +106,27 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
           isOpen={expanded.settings}
           onToggle={() => toggle('settings')}
         >
-          <NavLink href="/settings/users" label={t('users')} isActive={isActive('/settings/users')} indent />
-          <NavLink href="/settings/roles" label={t('roles')} isActive={isActive('/settings/roles')} indent />
-          <NavLink href="/settings/payment-methods" label={t('paymentMethods')} isActive={isActive('/settings/payment-methods')} indent />
+          <NavLink href="/settings/users" label={t('users')} isActive={isActive('/settings/users')} indent onClose={onClose} />
+          <NavLink href="/settings/roles" label={t('roles')} isActive={isActive('/settings/roles')} indent onClose={onClose} />
+          <NavLink href="/settings/payment-methods" label={t('paymentMethods')} isActive={isActive('/settings/payment-methods')} indent onClose={onClose} />
         </CollapsibleNav>
       </nav>
     </div>
   )
 }
 
-function NavLink({ href, icon, label, isActive, indent }: {
+function NavLink({ href, icon, label, isActive, indent, onClose }: {
   href: string
   icon?: React.ReactNode
   label: string
   isActive: boolean
   indent?: boolean
+  onClose?: () => void
 }) {
   return (
     <Link
       href={href}
+      onClick={onClose}
       className={cn(
         'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
         indent ? 'ps-8' : '',

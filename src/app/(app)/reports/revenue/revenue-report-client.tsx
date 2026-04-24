@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ExportButtons } from '@/components/shared/export-buttons'
 import { Filter } from 'lucide-react'
+import { formatKWD } from '@/lib/format'
 
 interface RevenueRow {
   service_name_ar: string; service_code: string; order_count: number;
@@ -62,13 +63,13 @@ export function RevenueReportClient() {
           <div className="grid grid-cols-3 gap-4">
             <Card className="border-0 shadow-sm bg-blue-50">
               <CardContent className="p-5">
-                <div className="text-2xl font-bold text-blue-700">{totalRevenue.toFixed(3)}</div>
+                <div className="text-2xl font-bold text-blue-700">{formatKWD(totalRevenue)}</div>
                 <div className="text-sm text-gray-500">إجمالي الإيرادات</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm bg-green-50">
               <CardContent className="p-5">
-                <div className="text-2xl font-bold text-green-700">{netRevenue.toFixed(3)}</div>
+                <div className="text-2xl font-bold text-green-700">{formatKWD(netRevenue)}</div>
                 <div className="text-sm text-gray-500">صافي الإيرادات</div>
               </CardContent>
             </Card>
@@ -107,18 +108,18 @@ export function RevenueReportClient() {
                         <td className="p-2 text-center text-blue-600">{r.service_code}</td>
                         <td className="p-2 text-center text-blue-600">{r.order_count}</td>
                         <td className="p-2 text-center">{r.total_qty}</td>
-                        <td className="p-2 text-center">{Number(r.unit_price).toFixed(3)}</td>
-                        <td className="p-2 text-center">{Number(r.total_revenue).toFixed(3)}</td>
-                        <td className="p-2 text-center text-red-500">{Number(r.discount_total).toFixed(3)}</td>
-                        <td className="p-2 text-center text-green-600 font-medium">{Number(r.net_revenue).toFixed(3)}</td>
+                        <td className="p-2 text-center">{formatKWD(r.unit_price)}</td>
+                        <td className="p-2 text-center">{formatKWD(r.total_revenue)}</td>
+                        <td className="p-2 text-center text-red-500">{formatKWD(r.discount_total)}</td>
+                        <td className="p-2 text-center text-green-600 font-medium">{formatKWD(r.net_revenue)}</td>
                       </tr>
                     ))}
                     {rows.length > 0 && (
                       <tr className="bg-gray-50 font-bold border-t">
                         <td colSpan={6} className="p-2 text-end">الإجمالي:</td>
-                        <td className="p-2 text-center">{totalRevenue.toFixed(3)}</td>
+                        <td className="p-2 text-center">{formatKWD(totalRevenue)}</td>
                         <td></td>
-                        <td className="p-2 text-center text-green-700">{netRevenue.toFixed(3)}</td>
+                        <td className="p-2 text-center text-green-700">{formatKWD(netRevenue)}</td>
                       </tr>
                     )}
                   </tbody>

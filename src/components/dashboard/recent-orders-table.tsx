@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusBadge } from '@/components/shared/status-badge'
 import Link from 'next/link'
 import type { RecentOrder } from '@/lib/queries/dashboard'
+import { formatKWD } from '@/lib/format'
 
 export function RecentOrdersTable({ orders }: { orders: RecentOrder[] }) {
   return (
@@ -28,7 +29,7 @@ export function RecentOrdersTable({ orders }: { orders: RecentOrder[] }) {
                 <td className="p-3 text-center text-gray-700">{order.consumer_name}</td>
                 <td className="p-3 text-center text-gray-700">{order.supervisor_name || '-'}</td>
                 <td className="p-3 text-center"><StatusBadge status={order.status as 'draft'} /></td>
-                <td className="p-3 text-end text-green-600 font-medium">{Number(order.net_amount).toFixed(3)}</td>
+                <td className="p-3 text-end text-green-600 font-medium">{formatKWD(order.net_amount)}</td>
                 <td className="p-3 text-center text-gray-500">{order.date}</td>
               </tr>
             ))}

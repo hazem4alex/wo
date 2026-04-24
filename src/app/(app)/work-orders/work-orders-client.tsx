@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Eye, Search, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { formatKWD } from '@/lib/format'
 
 interface WORow {
   id: string; work_order_no: string; status: string; net_amount: string;
@@ -51,7 +52,7 @@ export function WorkOrdersClient({ rows }: { rows: WORow[] }) {
       cell: ({ row }) => <StatusBadge status={row.original.status as 'draft'} />
     },
     { accessorKey: 'net_amount', header: 'صافي المبلغ',
-      cell: ({ row }) => <span className="text-green-600 font-medium">{Number(row.original.net_amount).toFixed(3)}</span>
+      cell: ({ row }) => <span className="text-green-600 font-medium">{formatKWD(row.original.net_amount)}</span>
     },
     { accessorKey: 'date', header: 'التاريخ' },
     {

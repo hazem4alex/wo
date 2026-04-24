@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { StatusBadge } from '@/components/shared/status-badge'
 import { ExportButtons } from '@/components/shared/export-buttons'
 import { Filter, RotateCcw } from 'lucide-react'
+import { formatKWD } from '@/lib/format'
 
 interface WORow {
   id: string; work_order_no: string; consumer_name: string; supervisor_name: string;
@@ -118,7 +119,7 @@ export function WorkOrdersReportClient({ supervisors, offices, areas }: {
           {/* Summary cards */}
           <div className="grid grid-cols-4 gap-4">
             {[
-              { label: 'إجمالي الإيرادات', value: totalRevenue.toFixed(3), color: 'text-green-600', bg: 'bg-green-50' },
+              { label: 'إجمالي الإيرادات', value: formatKWD(totalRevenue), color: 'text-green-600', bg: 'bg-green-50' },
               { label: 'معلق', value: pendingCount, color: 'text-amber-600', bg: 'bg-amber-50' },
               { label: 'مكتمل', value: completedCount, color: 'text-green-600', bg: 'bg-green-50' },
               { label: 'إجمالي الأوامر', value: rows.length, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -166,14 +167,14 @@ export function WorkOrdersReportClient({ supervisors, offices, areas }: {
                         <td className="p-2 text-center text-xs">{r.service_names}</td>
                         <td className="p-2 text-center"><StatusBadge status={r.status as 'draft'} /></td>
                         <td className="p-2 text-center">{r.has_fine ? 'نعم' : 'لا'}</td>
-                        <td className="p-2 text-end text-green-600 font-medium">{Number(r.net_amount).toFixed(3)}</td>
+                        <td className="p-2 text-end text-green-600 font-medium">{formatKWD(r.net_amount)}</td>
                         <td className="p-2 text-center">{r.date}</td>
                       </tr>
                     ))}
                     {rows.length > 0 && (
                       <tr className="bg-gray-50 font-bold border-t">
                         <td colSpan={9} className="p-2 text-end">الإجمالي:</td>
-                        <td className="p-2 text-end text-green-700">{totalRevenue.toFixed(3)}</td>
+                        <td className="p-2 text-end text-green-700">{formatKWD(totalRevenue)}</td>
                         <td></td>
                       </tr>
                     )}

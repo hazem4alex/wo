@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { Bell, Moon, Globe, Menu, ChevronDown } from 'lucide-react'
+import { Bell, Moon, Sun, Globe, Menu, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useRouter } from 'next/navigation'
-import { useTransition } from 'react'
+import { useTransition, useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 
 interface TopBarProps {
@@ -24,7 +24,9 @@ export function TopBar({ locale, userName, systemName, onMenuClick }: TopBarProp
   const t = useTranslations()
   const router = useRouter()
   const [, startTransition] = useTransition()
-  const { theme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   const toggleLocale = async () => {
     const newLocale = locale === 'ar' ? 'en' : 'ar'
@@ -58,8 +60,8 @@ export function TopBar({ locale, userName, systemName, onMenuClick }: TopBarProp
         </Button>
 
         {/* Dark mode toggle */}
-        <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-          <Moon className="w-4 h-4" />
+        <Button variant="ghost" size="icon" onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}>
+          {mounted && resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </Button>
 
         {/* Notifications */}

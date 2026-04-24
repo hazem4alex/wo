@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { TopService, TopSupervisor } from '@/lib/queries/dashboard'
+import { formatKWD } from '@/lib/format'
 
 export function TopTables({ topServices, topSupervisors }: { topServices: TopService[]; topSupervisors: TopSupervisor[] }) {
   return (
@@ -20,7 +21,7 @@ export function TopTables({ topServices, topSupervisors }: { topServices: TopSer
                   <td className="py-2 text-gray-400">{i + 1}</td>
                   <td className="py-2 text-gray-700 truncate max-w-28">{s.name_ar}</td>
                   <td className="py-2 text-end text-blue-600">{s.usage_count}</td>
-                  <td className="py-2 text-end text-green-600">{s.total_revenue.toFixed(3)}</td>
+                  <td className="py-2 text-end text-green-600">{formatKWD(s.total_revenue)}</td>
                 </tr>
               ))}
               {topServices.length === 0 && (
@@ -47,7 +48,7 @@ export function TopTables({ topServices, topSupervisors }: { topServices: TopSer
                   <td className="py-2 text-gray-400">{i + 1}</td>
                   <td className="py-2 text-gray-700">{s.full_name}</td>
                   <td className="py-2 text-end text-blue-600">{s.total_orders}</td>
-                  <td className="py-2 text-end text-green-600">{s.total_revenue.toFixed(3)}</td>
+                  <td className="py-2 text-end text-green-600">{formatKWD(s.total_revenue)}</td>
                 </tr>
               ))}
               {topSupervisors.length === 0 && (
