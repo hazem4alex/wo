@@ -40,7 +40,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex" dir="rtl" style={{ background: '#1a1d24' }}>
+    <div className="min-h-screen flex bg-background" dir="rtl">
       <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-12" style={{ background: '#13151c', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
         {/* Ministry emblem */}
         <div className="flex items-center gap-3 mb-6">
@@ -74,15 +74,15 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-8" style={{ background: '#1a1d24' }}>
-        <div className="rounded-2xl w-full max-w-md p-8" style={{ background: '#1e2130', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex-1 flex items-center justify-center p-8 bg-background">
+        <div className="rounded-2xl w-full max-w-md p-8 bg-card border border-border">
           <div className="flex items-center justify-center gap-2 mb-8 lg:hidden">
             <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#cd7f32,#f59e0b)' }}>
               <Zap className="w-5 h-5 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold mb-2 text-center" style={{ color: '#e2e8f0' }}>{t('login')}</h1>
-          <p className="text-sm text-center mb-8" style={{ color: '#4b5563' }}>وزارة الكهرباء والماء — دولة الكويت</p>
+          <h1 className="text-2xl font-bold mb-2 text-center text-foreground">{t('login')}</h1>
+          <p className="text-sm text-center mb-8 text-muted-foreground">وزارة الكهرباء والماء — دولة الكويت</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
@@ -99,7 +99,7 @@ export default function LoginPage() {
               <p className="text-red-500 text-sm text-center bg-red-50 py-2 px-3 rounded-lg">{error}</p>
             )}
             <Button type="submit" disabled={loading}
-              className="w-full bg-blue-700 hover:bg-blue-800 text-white py-2.5 text-base font-medium">
+              className="w-full py-2.5 text-base font-medium" style={{ background: '#cd7f32', color: '#fff' }}>
               {loading ? '...' : t('loginButton')}
             </Button>
           </form>

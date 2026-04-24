@@ -43,7 +43,7 @@ export function TopBar({ locale, theme, userName, systemName, onMenuClick }: Top
   }
 
   return (
-    <header className="h-14 flex items-center justify-between px-4 sticky top-0 z-40" style={{ background: '#1e2130', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+    <header className="h-14 flex items-center justify-between px-4 sticky top-0 z-40 bg-card border-b border-border">
       {/* Left: system name + hamburger */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" className="md:hidden" onClick={onMenuClick}>
