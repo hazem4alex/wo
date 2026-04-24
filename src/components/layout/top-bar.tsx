@@ -10,27 +10,30 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useRouter } from 'next/navigation'
-import { useTransition, useState, useEffect } from 'react'
-import { useTheme } from 'next-themes'
+import { useTransition } from 'react'
 
 interface TopBarProps {
   locale: string
+  theme: string
   userName: string
   systemName: string
   onMenuClick?: () => void
 }
 
-export function TopBar({ locale, userName, systemName, onMenuClick }: TopBarProps) {
+export function TopBar({ locale, theme, userName, systemName, onMenuClick }: TopBarProps) {
   const t = useTranslations()
   const router = useRouter()
   const [, startTransition] = useTransition()
-  const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
 
   const toggleLocale = async () => {
     const newLocale = locale === 'ar' ? 'en' : 'ar'
     await fetch('/api/locale', { method: 'POST', body: JSON.stringify({ locale: newLocale }) })
+    startTransition(() => router.refresh())
+  }
+
+  const toggleTheme = async () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark'
+    await fetch('/api/theme', { method: 'POST', body: JSON.stringify({ theme: newTheme }) })
     startTransition(() => router.refresh())
   }
 
@@ -60,8 +63,8 @@ export function TopBar({ locale, userName, systemName, onMenuClick }: TopBarProp
         </Button>
 
         {/* Dark mode toggle */}
-        <Button variant="ghost" size="icon" onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}>
-          {mounted && resolvedTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        <Button variant="ghost" size="icon" onClick={toggleTheme}>
+          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </Button>
 
         {/* Notifications */}

@@ -10,10 +10,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const cookieStore = await cookies()
   const locale = cookieStore.get('locale')?.value ?? 'ar'
+  const theme = cookieStore.get('theme')?.value ?? 'light'
   const t = await getTranslations('app')
 
   return (
-    <AppShell locale={locale} userName={session.fullName} systemName={t('name')}>
+    <AppShell locale={locale} theme={theme} userName={session.fullName} systemName={t('name')}>
       {children}
     </AppShell>
   )

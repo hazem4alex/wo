@@ -5,12 +5,13 @@ import { TopBar } from './top-bar'
 
 interface AppShellProps {
   locale: string
+  theme: string
   userName: string
   systemName: string
   children: React.ReactNode
 }
 
-export function AppShell({ locale, userName, systemName, children }: AppShellProps) {
+export function AppShell({ locale, theme, userName, systemName, children }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
@@ -26,6 +27,7 @@ export function AppShell({ locale, userName, systemName, children }: AppShellPro
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <TopBar
           locale={locale}
+          theme={theme}
           userName={userName}
           systemName={systemName}
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
