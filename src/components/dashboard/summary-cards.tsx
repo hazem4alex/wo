@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { TrendingUp, Clock, CheckCircle, FileText, Users } from 'lucide-react'
 import type { DashboardStats } from '@/lib/queries/dashboard'
+import { formatKWD } from '@/lib/format'
 
 function pctChange(current: number, previous: number): string {
   if (previous === 0) return current > 0 ? '+100%' : '0%'
@@ -12,7 +13,7 @@ export function SummaryCards({ stats }: { stats: DashboardStats }) {
   const cards = [
     {
       title: 'إجمالي الإيرادات',
-      value: stats.totalRevenue.toFixed(3),
+      value: formatKWD(stats.totalRevenue),
       icon: TrendingUp,
       color: 'text-green-600',
       bg: 'bg-green-50',

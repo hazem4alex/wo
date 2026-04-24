@@ -11,17 +11,20 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
+import { useTheme } from 'next-themes'
 
 interface TopBarProps {
   locale: string
   userName: string
   systemName: string
+  onMenuClick?: () => void
 }
 
-export function TopBar({ locale, userName, systemName }: TopBarProps) {
+export function TopBar({ locale, userName, systemName, onMenuClick }: TopBarProps) {
   const t = useTranslations()
   const router = useRouter()
   const [, startTransition] = useTransition()
+  const { theme, setTheme } = useTheme()
 
   const toggleLocale = async () => {
     const newLocale = locale === 'ar' ? 'en' : 'ar'
@@ -35,10 +38,10 @@ export function TopBar({ locale, userName, systemName }: TopBarProps) {
   }
 
   return (
-    <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 sticky top-0 z-40">
+    <header className="h-14 bg-white border-b border-gray-200 dark:bg-slate-900 dark:border-slate-700 flex items-center justify-between px-4 sticky top-0 z-40">
       {/* Left: system name + hamburger */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={onMenuClick}>
           <Menu className="w-5 h-5" />
         </Button>
         <div className="text-sm text-gray-500 flex items-center gap-1">
@@ -54,8 +57,8 @@ export function TopBar({ locale, userName, systemName }: TopBarProps) {
           <Globe className="w-4 h-4" />
         </Button>
 
-        {/* Dark mode toggle (visual only for now) */}
-        <Button variant="ghost" size="icon">
+        {/* Dark mode toggle */}
+        <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
           <Moon className="w-4 h-4" />
         </Button>
 

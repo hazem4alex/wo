@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
+import { Providers } from '@/components/providers'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={validLocale} dir={dir}>
       <body className="bg-gray-50 min-h-screen antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

@@ -18,7 +18,12 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  open?: boolean
+  onClose?: () => void
+}
+
+export function AppSidebar({ open, onClose }: AppSidebarProps) {
   const t = useTranslations('nav')
   const pathname = usePathname()
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
@@ -35,7 +40,7 @@ export function AppSidebar() {
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
   return (
-    <div className="fixed inset-y-0 end-0 w-64 bg-[#0f172a] flex flex-col z-50 overflow-y-auto">
+    <div className={`fixed inset-y-0 end-0 z-40 w-64 bg-[#0f172a] flex flex-col overflow-y-auto transition-transform duration-300 md:relative md:translate-x-0 ${open ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-700">
         <div className="w-8 h-8 bg-amber-400 rounded flex items-center justify-center">
