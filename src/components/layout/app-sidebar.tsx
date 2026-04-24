@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 import {
   LayoutDashboard,
   ClipboardList,
-  PlusCircle,
   Folder,
   BarChart3,
   Settings,
@@ -57,8 +56,7 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
         {/* Work Orders */}
         <div className="pt-2">
           <p className="px-3 text-xs uppercase tracking-wider mb-1" style={{ color: '#374151' }}>{t('workOrders')}</p>
-          <NavLink href="/work-orders" icon={<ClipboardList className="w-4 h-4" />} label={t('workOrders')} isActive={isActive('/work-orders') && !pathname.startsWith('/work-orders/new')} onClose={onClose} />
-          <NavLink href="/work-orders/new" icon={<PlusCircle className="w-4 h-4" />} label={t('addWorkOrder')} isActive={isActive('/work-orders/new')} onClose={onClose} />
+          <NavLink href="/work-orders" icon={<ClipboardList className="w-4 h-4" />} label={t('workOrders')} isActive={isActive('/work-orders')} onClose={onClose} />
         </div>
 
         {/* Main Files */}
