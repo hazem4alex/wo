@@ -52,8 +52,8 @@ const emptyForm: FormState = {
   full_name: '',
   email: '',
   password: '',
-  role_id: '',
-  office_id: '',
+  role_id: '__none__',
+  office_id: '__none_office__',
   is_active: true,
 }
 
@@ -77,8 +77,8 @@ export function UsersClient({ users, roles, offices }: Props) {
       full_name: row.full_name,
       email: row.email,
       password: '',
-      role_id: row.role_id ?? '',
-      office_id: row.office_id ?? '',
+      role_id: row.role_id ?? '__none__',
+      office_id: row.office_id ?? '__none_office__',
       is_active: row.is_active,
     })
     setOpen(true)
@@ -91,8 +91,8 @@ export function UsersClient({ users, roles, offices }: Props) {
         full_name: form.full_name,
         email: form.email,
         password: form.password || undefined,
-        role_id: form.role_id || undefined,
-        office_id: form.office_id || undefined,
+        role_id: form.role_id === '__none__' ? undefined : form.role_id || undefined,
+        office_id: form.office_id === '__none_office__' ? undefined : form.office_id || undefined,
         is_active: form.is_active,
       }
       if (editing) {
@@ -124,7 +124,7 @@ export function UsersClient({ users, roles, offices }: Props) {
     setNotifLoading(true)
     try {
       await sendNotificationToAll()
-      alert('تم إرسال الإشعار لجميع المستخدمين بنجاح')
+      alert('هذه الميزة قيد التطوير - لم يتم إرسال أي إشعارات')
     } finally {
       setNotifLoading(false)
     }
@@ -156,7 +156,7 @@ export function UsersClient({ users, roles, offices }: Props) {
     },
     {
       id: 'actions',
-      header: 'اجراء',
+      header: 'إجراء',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" onClick={() => openEdit(row.original)}>
@@ -189,7 +189,7 @@ export function UsersClient({ users, roles, offices }: Props) {
 
       <DataTable data={users} columns={columns} noDataText="لا يوجد مستخدمون" />
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(o) => { if (!o) setForm(emptyForm); setOpen(o) }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>{editing ? 'تعديل مستخدم' : 'إضافة مستخدم'}</DialogTitle>
@@ -223,12 +223,12 @@ export function UsersClient({ users, roles, offices }: Props) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>الدور</Label>
-                <Select value={form.role_id} onValueChange={v => setForm(p => ({ ...p, role_id: v ?? '' }))}>
+                <Select value={form.role_id} onValueChange={v => setForm(p => ({ ...p, role_id: v ?? '__none__' }))}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="اختر الدور" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">بدون دور</SelectItem>
+                    <SelectItem value="__none__">بدون دور</SelectItem>
                     {roles.map(r => (
                       <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
                     ))}
@@ -237,12 +237,12 @@ export function UsersClient({ users, roles, offices }: Props) {
               </div>
               <div className="space-y-1">
                 <Label>المكتب</Label>
-                <Select value={form.office_id} onValueChange={v => setForm(p => ({ ...p, office_id: v ?? '' }))}>
+                <Select value={form.office_id} onValueChange={v => setForm(p => ({ ...p, office_id: v ?? '__none_office__' }))}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="اختر المكتب" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">بدون مكتب</SelectItem>
+                    <SelectItem value="__none_office__">بدون مكتب</SelectItem>
                     {offices.map(o => (
                       <SelectItem key={o.id} value={o.id}>{o.name_ar}</SelectItem>
                     ))}

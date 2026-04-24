@@ -33,6 +33,18 @@ interface Props {
   rolePermissions: RolePermission[]
 }
 
+const MODULE_LABELS: Record<string, string> = {
+  work_orders: 'أوامر العمل',
+  consumers: 'المستهلكون',
+  users: 'المستخدمون',
+  reports: 'التقارير',
+  settings: 'الإعدادات',
+  services: 'الخدمات',
+  supervisors: 'المشرفون',
+  offices: 'المكاتب',
+  dashboard: 'لوحة التحكم',
+}
+
 export function RolesClient({ roles, permissions, rolePermissions }: Props) {
   const router = useRouter()
   const [selectedRole, setSelectedRole] = useState<RoleRow | null>(null)
@@ -97,7 +109,7 @@ export function RolesClient({ roles, permissions, rolePermissions }: Props) {
     },
     {
       id: 'actions',
-      header: 'اجراء',
+      header: 'إجراء',
       cell: ({ row }) => (
         <Button
           size="sm"
@@ -129,7 +141,7 @@ export function RolesClient({ roles, permissions, rolePermissions }: Props) {
               {Object.entries(groupedPerms).map(([moduleKey, perms]) => (
                 <div key={moduleKey}>
                   <h4 className="text-sm font-semibold text-gray-700 bg-gray-50 px-3 py-2 rounded-md mb-3 uppercase tracking-wide">
-                    {moduleKey}
+                    {MODULE_LABELS[moduleKey] ?? moduleKey}
                   </h4>
                   <div className="grid grid-cols-2 gap-2 px-2">
                     {perms.map(p => (
