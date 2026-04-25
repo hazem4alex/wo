@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Plus, Trash2, Search, X } from 'lucide-react'
 import { createWorkOrder } from '@/lib/actions/work-orders'
 import { useRouter } from 'next/navigation'
@@ -23,73 +22,59 @@ interface BillingItem {
 interface Consumer {
   id: string; full_name: string; consumer_code: string; consumer_no?: string;
   national_id?: string; phone?: string; street?: string; house_no?: string; apartment_no?: string;
+  governorate_id?: string; area_id?: string; office_id?: string;
 }
 
 function calcTotal(item: BillingItem): number {
   return Math.max(0, item.quantity * item.unit_price - item.discount_amount + item.fine_amount)
 }
 
-function generateWOCode(): string {
-  const now = new Date()
-  const date = now.toISOString().slice(0, 10).replace(/-/g, '')
-  const rand = Math.floor(Math.random() * 9000) + 1000
-  return `WO-${date}-${rand}`
-}
-
-// Styled native select that always shows the correct label
-function NativeSelect({ value, onChange, options, placeholder, disabled, required }: {
-  value: string
-  onChange: (v: string) => void
+// Styled native select
+function NativeSelect({ value, onChange, options, placeholder, disabled }: {
+  value: string; onChange: (v: string) => void
   options: { value: string; label: string }[]
-  placeholder?: string
-  disabled?: boolean
-  required?: boolean
+  placeholder?: string; disabled?: boolean
 }) {
   return (
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
       disabled={disabled}
-      required={required}
       className={cn(
-        'w-full h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none transition-colors',
-        'focus:border-ring focus:ring-3 focus:ring-ring/50',
+        'w-full h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none transition-colors',
+        'focus:border-ring focus:ring-2 focus:ring-ring/50',
         'disabled:cursor-not-allowed disabled:opacity-50',
         !value && 'text-muted-foreground'
       )}
     >
       <option value="">{placeholder ?? 'اختر'}</option>
-      {options.map(o => (
-        <option key={o.value} value={o.value}>{o.label}</option>
-      ))}
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
   )
 }
 
-// Consumer combobox: single searchable dropdown
-function ConsumerCombobox({ consumers, value, onChange }: {
-  consumers: Consumer[]
+// Generic searchable combobox
+function SearchCombobox<T extends { id: string }>({
+  items, value, onChange, placeholder, renderItem, renderSelected, filterFn,
+}: {
+  items: T[]
   value: string
-  onChange: (id: string, consumer: Consumer | null) => void
+  onChange: (id: string, item: T | null) => void
+  placeholder: string
+  renderItem: (item: T) => React.ReactNode
+  renderSelected: (item: T) => string
+  filterFn: (item: T, query: string) => boolean
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const ref = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-
-  const selected = consumers.find(c => c.id === value) ?? null
+  const selected = items.find(i => i.id === value) ?? null
 
   const filtered = useMemo(() => {
-    if (!search) return consumers.slice(0, 60)
-    const q = search.toLowerCase()
-    return consumers.filter(c =>
-      c.full_name.toLowerCase().includes(q) ||
-      c.consumer_code?.toLowerCase().includes(q) ||
-      c.consumer_no?.includes(q) ||
-      c.national_id?.includes(q) ||
-      c.phone?.includes(q)
-    ).slice(0, 60)
-  }, [consumers, search])
+    if (!search) return items.slice(0, 60)
+    return items.filter(i => filterFn(i, search.toLowerCase())).slice(0, 60)
+  }, [items, search, filterFn])
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -99,34 +84,25 @@ function ConsumerCombobox({ consumers, value, onChange }: {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const select = (c: Consumer) => {
-    onChange(c.id, c)
-    setSearch('')
-    setOpen(false)
-  }
-
-  const clear = () => {
-    onChange('', null)
-    setSearch('')
-    setOpen(false)
-  }
+  const select = (item: T) => { onChange(item.id, item); setSearch(''); setOpen(false) }
+  const clear = () => { onChange('', null); setSearch(''); setOpen(false) }
 
   return (
     <div ref={ref} className="relative">
       <div className={cn(
-        'flex items-center gap-1.5 h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors',
-        open && 'border-ring ring-3 ring-ring/50'
+        'flex items-center gap-1.5 h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors',
+        open && 'border-ring ring-2 ring-ring/50'
       )}>
         <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
         {selected && !open ? (
-          <span className="flex-1 truncate text-foreground">{selected.full_name}{selected.consumer_code ? ` — ${selected.consumer_code}` : ''}</span>
+          <span className="flex-1 truncate text-foreground">{renderSelected(selected)}</span>
         ) : (
           <input
             ref={inputRef}
             value={search}
             onChange={e => { setSearch(e.target.value); setOpen(true) }}
             onFocus={() => setOpen(true)}
-            placeholder={selected ? `${selected.full_name}${selected.consumer_code ? ` — ${selected.consumer_code}` : ''}` : 'ابحث بالاسم / الرقم المدني / الهاتف / الكود...'}
+            placeholder={selected ? renderSelected(selected) : placeholder}
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
             dir="rtl"
           />
@@ -142,29 +118,21 @@ function ConsumerCombobox({ consumers, value, onChange }: {
           </button>
         )}
       </div>
-
       {open && (
-        <div className="absolute z-50 w-full mt-1 rounded-lg border border-border bg-card shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 rounded-lg border border-border bg-card shadow-lg max-h-64 overflow-y-auto">
           {filtered.length === 0 ? (
             <div className="p-3 text-sm text-muted-foreground text-center">لا توجد نتائج</div>
-          ) : (
-            filtered.map(c => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => select(c)}
-                className={cn(
-                  'w-full text-start px-3 py-2 text-sm hover:bg-accent transition-colors',
-                  c.id === value && 'bg-accent text-accent-foreground font-medium'
-                )}
-              >
-                <div className="font-medium">{c.full_name}</div>
-                <div className="text-xs text-muted-foreground">
-                  {[c.consumer_code, c.national_id, c.phone].filter(Boolean).join(' · ')}
-                </div>
-              </button>
-            ))
-          )}
+          ) : filtered.map(item => (
+            <button
+              key={item.id} type="button" onClick={() => select(item)}
+              className={cn(
+                'w-full text-start px-3 py-2 text-sm hover:bg-accent transition-colors',
+                item.id === value && 'bg-accent font-medium'
+              )}
+            >
+              {renderItem(item)}
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -189,13 +157,10 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
   const [supervisorId, setSupervisorId] = useState('')
   const [paymentMethodId, setPaymentMethodId] = useState('')
   const [notes, setNotes] = useState('')
-  const [woCode] = useState(generateWOCode)
-  const [orderDate, setOrderDate] = useState(() => new Date().toISOString().slice(0, 10))
-  // Address
+  const [orderDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [street, setStreet] = useState('')
   const [houseNo, setHouseNo] = useState('')
   const [apartmentNo, setApartmentNo] = useState('')
-  // Meters
   const [elecOldNo, setElecOldNo] = useState('')
   const [elecNewNo, setElecNewNo] = useState('')
   const [elecOldReading, setElecOldReading] = useState('')
@@ -204,36 +169,41 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
   const [waterNewNo, setWaterNewNo] = useState('')
   const [waterOldReading, setWaterOldReading] = useState('')
   const [waterNewReading, setWaterNewReading] = useState('')
-  // Items
   const [items, setItems] = useState<BillingItem[]>([])
 
   const filteredAreas = areas.filter(a => a.governorate_id === governorateId)
   const filteredOffices = offices.filter(o => o.area_id === areaId)
   const filteredSupervisors = supervisors.filter(s => !officeId || s.office_id === officeId)
 
+  // When consumer is selected, auto-fill address + cascade location
   const handleConsumerChange = (id: string, c: Consumer | null) => {
     setConsumerId(id)
     setStreet(c?.street ?? '')
     setHouseNo(c?.house_no ?? '')
     setApartmentNo(c?.apartment_no ?? '')
+    if (c?.governorate_id) {
+      setGovernorateId(c.governorate_id)
+      setAreaId(c.area_id ?? '')
+      setOfficeId(c.office_id ?? '')
+      setSupervisorId('')
+    }
   }
 
-  const addItem = (svc?: ServiceOption) => {
-    const newItem: BillingItem = {
+  const addItem = (svc: ServiceOption) => {
+    setItems(prev => [...prev, {
       id: Math.random().toString(36),
-      service_name_ar: svc?.name_ar ?? '',
-      service_name_en: svc?.name_en ?? '',
-      service_code: svc?.code ?? '',
+      service_name_ar: svc.name_ar,
+      service_name_en: svc.name_en,
+      service_code: svc.code,
       quantity: 1,
-      unit_price: svc ? Number(svc.unit_price) : 0,
+      unit_price: Number(svc.unit_price),
       discount_amount: 0,
       fine_amount: 0,
-      total_amount: svc ? Number(svc.unit_price) : 0,
-    }
-    setItems(prev => [...prev, newItem])
+      total_amount: Number(svc.unit_price),
+    }])
   }
 
-  const updateItem = (id: string, field: keyof BillingItem, value: string | number) => {
+  const updateItem = (id: string, field: keyof BillingItem, value: number) => {
     setItems(prev => prev.map(item => {
       if (item.id !== id) return item
       const updated = { ...item, [field]: value }
@@ -246,15 +216,15 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
   const netAmount = items.reduce((sum, i) => sum + i.total_amount, 0)
 
   const handleSubmit = async () => {
-    if (!consumerId || !officeId || items.length === 0) {
-      alert('يرجى اختيار المستهلك والمكتب وإضافة بند واحد على الأقل')
+    if (!consumerId || items.length === 0) {
+      alert('يرجى اختيار المستهلك وإضافة بند واحد على الأقل')
       return
     }
     setLoading(true)
     try {
       await createWorkOrder({
         consumer_id: consumerId,
-        office_id: officeId,
+        office_id: officeId || undefined,
         supervisor_id: supervisorId || undefined,
         payment_method_id: paymentMethodId || undefined,
         governorate_id: governorateId || undefined,
@@ -289,18 +259,39 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>رقم أمر العمل</Label>
-              <Input value={woCode} readOnly dir="ltr" className="bg-muted text-muted-foreground cursor-default" />
+              <Input value="يتم توليده تلقائياً" readOnly dir="ltr" className="bg-muted text-muted-foreground cursor-default" />
             </div>
             <div className="space-y-1">
               <Label>تاريخ الأمر</Label>
-              <Input type="date" value={orderDate} onChange={e => setOrderDate(e.target.value)} dir="ltr" />
+              <Input type="date" defaultValue={orderDate} readOnly dir="ltr" className="bg-muted text-muted-foreground cursor-default" />
             </div>
           </div>
 
-          {/* Consumer */}
+          {/* Consumer — single searchable dropdown */}
           <div className="space-y-1">
             <Label>المستهلك <span className="text-red-500">*</span></Label>
-            <ConsumerCombobox consumers={consumers} value={consumerId} onChange={handleConsumerChange} />
+            <SearchCombobox<Consumer>
+              items={consumers}
+              value={consumerId}
+              onChange={handleConsumerChange}
+              placeholder="ابحث بالاسم / الرقم المدني / الهاتف / الكود..."
+              renderSelected={c => `${c.full_name}${c.consumer_code ? ` — ${c.consumer_code}` : ''}`}
+              renderItem={c => (
+                <>
+                  <div className="font-medium">{c.full_name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {[c.consumer_code, c.national_id, c.phone].filter(Boolean).join(' · ')}
+                  </div>
+                </>
+              )}
+              filterFn={(c, q) =>
+                c.full_name.toLowerCase().includes(q) ||
+                (c.consumer_code?.toLowerCase().includes(q) ?? false) ||
+                (c.consumer_no?.includes(q) ?? false) ||
+                (c.national_id?.includes(q) ?? false) ||
+                (c.phone?.includes(q) ?? false)
+              }
+            />
           </div>
 
           {/* Address */}
@@ -311,11 +302,11 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
             </div>
             <div className="space-y-1">
               <Label>رقم المنزل</Label>
-              <Input value={houseNo} onChange={e => setHouseNo(e.target.value)} placeholder="رقم المنزل" />
+              <Input value={houseNo} onChange={e => setHouseNo(e.target.value)} />
             </div>
             <div className="space-y-1">
               <Label>رقم الشقة</Label>
-              <Input value={apartmentNo} onChange={e => setApartmentNo(e.target.value)} placeholder="رقم الشقة" />
+              <Input value={apartmentNo} onChange={e => setApartmentNo(e.target.value)} />
             </div>
           </div>
 
@@ -341,7 +332,7 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
               />
             </div>
             <div className="space-y-1">
-              <Label>المكتب <span className="text-red-500">*</span></Label>
+              <Label>المكتب</Label>
               <NativeSelect
                 value={officeId}
                 onChange={v => { setOfficeId(v); setSupervisorId('') }}
@@ -380,7 +371,7 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
         </CardContent>
       </Card>
 
-      {/* Meters */}
+      {/* Meters — before invoice items */}
       <Card>
         <CardHeader><CardTitle className="text-base">العدادات</CardTitle></CardHeader>
         <CardContent className="space-y-6">
@@ -416,19 +407,30 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">بنود الفاتورة</CardTitle>
-            <Select onValueChange={v => { const svc = services.find(s => s.id === v); addItem(svc) }}>
-              <SelectTrigger className="w-52">
-                <SelectValue placeholder="+ إضافة خدمة" />
-              </SelectTrigger>
-              <SelectContent>
-                {services.map(s => <SelectItem key={s.id} value={s.id}>{s.name_ar}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            {/* Service searchable dropdown */}
+            <SearchCombobox<ServiceOption>
+              items={services}
+              value=""
+              onChange={(_, svc) => { if (svc) addItem(svc) }}
+              placeholder="ابحث واختر خدمة للإضافة..."
+              renderSelected={s => s.name_ar}
+              renderItem={s => (
+                <>
+                  <div className="font-medium">{s.name_ar}</div>
+                  <div className="text-xs text-muted-foreground">{[s.code, s.unit_price ? `${s.unit_price} د.ك` : ''].filter(Boolean).join(' · ')}</div>
+                </>
+              )}
+              filterFn={(s, q) =>
+                s.name_ar.toLowerCase().includes(q) ||
+                s.name_en.toLowerCase().includes(q) ||
+                s.code.toLowerCase().includes(q)
+              }
+            />
           </div>
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8 text-sm">أضف خدمة من القائمة أعلاه</p>
+            <p className="text-center text-muted-foreground py-8 text-sm">ابحث واختر خدمة من القائمة أعلاه لإضافة بند</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -469,7 +471,6 @@ export function WorkOrderForm({ consumers, governorates, areas, offices, supervi
         </CardContent>
       </Card>
 
-      {/* Actions */}
       <div className="flex justify-end gap-3">
         <Button variant="outline" onClick={() => router.back()}>إلغاء</Button>
         <Button onClick={handleSubmit} disabled={loading} style={{ background: '#cd7f32', color: '#fff' }} className="px-8">

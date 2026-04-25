@@ -1,8 +1,14 @@
 import { pool } from '@/lib/db'
+import { notFound } from 'next/navigation'
 import { PageHeader } from '@/components/shared/page-header'
 import { WorkOrderForm } from '@/components/work-orders/work-order-form'
 
-export default async function NewWorkOrderPage() {
+export default async function EditWorkOrderPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+
+  const woRes = await pool.query('SELECT * FROM work_order WHERE id=$1', [id])
+  if (!woRes.rows[0]) notFound()
+
   const [consumersRes, govRes, areasRes, officesRes, supervisorsRes, servicesRes, paymentRes] = await Promise.all([
     pool.query(`
       SELECT c.id, c.full_name, c.consumer_code, c.consumer_no, c.national_id, c.phone,
@@ -24,8 +30,13 @@ export default async function NewWorkOrderPage() {
   return (
     <div>
       <PageHeader
-        title="إضافة امر عمل"
-        breadcrumb={[{ label: 'الرئيسية', href: '/dashboard' }, { label: 'اوامر العمل', href: '/work-orders' }, { label: 'إضافة' }]}
+        title={`تعديل أمر العمل — ${woRes.rows[0].work_order_no}`}
+        breadcrumb={[
+          { label: 'الرئيسية', href: '/dashboard' },
+          { label: 'اوامر العمل', href: '/work-orders' },
+          { label: woRes.rows[0].work_order_no, href: `/work-orders/${id}` },
+          { label: 'تعديل' },
+        ]}
       />
       <WorkOrderForm
         consumers={consumersRes.rows}

@@ -1,5 +1,6 @@
 'use server'
 import { pool } from '@/lib/db'
+import { PoolClient } from 'pg'
 import { requireSession } from '@/lib/session'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
@@ -18,7 +19,7 @@ const itemSchema = z.object({
 
 const workOrderSchema = z.object({
   consumer_id: z.string().uuid(),
-  office_id: z.string().uuid(),
+  office_id: z.string().uuid().optional().or(z.literal('')),
   supervisor_id: z.string().uuid().optional().or(z.literal('')),
   payment_method_id: z.string().uuid().optional().or(z.literal('')),
   governorate_id: z.string().uuid().optional().or(z.literal('')),
@@ -39,11 +40,17 @@ const workOrderSchema = z.object({
   items: z.array(itemSchema).min(1, 'يجب إضافة بند واحد على الأقل'),
 })
 
-function generateWorkOrderNo(): string {
-  const now = new Date()
-  const date = now.toISOString().slice(0, 10).replace(/-/g, '')
-  const rand = Math.floor(Math.random() * 9000) + 1000
-  return `WO-${date}-${rand}`
+// Format: YYYY + 6-digit zero-padded sequence e.g. 2026000001
+async function generateWorkOrderNo(client: PoolClient): Promise<string> {
+  const year = new Date().getFullYear().toString()
+  const res = await client.query(
+    `SELECT COALESCE(MAX(CAST(SUBSTRING(work_order_no FROM 5) AS INTEGER)), 0) + 1 AS next_seq
+     FROM work_order
+     WHERE work_order_no ~ '^[0-9]{10}$' AND SUBSTRING(work_order_no, 1, 4) = $1`,
+    [year]
+  )
+  const seq: number = res.rows[0].next_seq
+  return `${year}${String(seq).padStart(6, '0')}`
 }
 
 export async function createWorkOrder(data: unknown) {
@@ -52,11 +59,11 @@ export async function createWorkOrder(data: unknown) {
 
   const netAmount = parsed.items.reduce((sum, item) => sum + item.total_amount, 0)
   const discountTotal = parsed.items.reduce((sum, item) => sum + item.discount_amount, 0)
-  const workOrderNo = generateWorkOrderNo()
 
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
+    const workOrderNo = await generateWorkOrderNo(client)
 
     const woResult = await client.query(
       `INSERT INTO work_order (
@@ -70,7 +77,7 @@ export async function createWorkOrder(data: unknown) {
       RETURNING id`,
       [
         workOrderNo, workOrderNo,
-        parsed.consumer_id, parsed.office_id,
+        parsed.consumer_id, parsed.office_id || null,
         parsed.supervisor_id || null, parsed.payment_method_id || null,
         parsed.status, parsed.notes || null,
         parsed.governorate_id || null, parsed.area_id || null,
@@ -96,7 +103,6 @@ export async function createWorkOrder(data: unknown) {
       )
     }
 
-    // Log creation event
     await client.query(
       `INSERT INTO work_order_event (id, work_order_id, event_type, message, actor_user_id)
        VALUES (gen_random_uuid(),$1,'created','تم إنشاء أمر العمل',$2)`,
@@ -112,6 +118,24 @@ export async function createWorkOrder(data: unknown) {
   } finally {
     client.release()
   }
+}
+
+export async function deleteWorkOrder(id: string) {
+  await requireSession()
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    await client.query('DELETE FROM work_order_event WHERE work_order_id=$1', [id])
+    await client.query('DELETE FROM work_order_item WHERE work_order_id=$1', [id])
+    await client.query('DELETE FROM work_order WHERE id=$1', [id])
+    await client.query('COMMIT')
+  } catch (e) {
+    await client.query('ROLLBACK')
+    throw e
+  } finally {
+    client.release()
+  }
+  revalidatePath('/work-orders')
 }
 
 export async function updateWorkOrderStatus(workOrderId: string, newStatus: string, message?: string) {
