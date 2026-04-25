@@ -6,34 +6,39 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { ActiveBadge } from '@/components/shared/status-badge'
 import { Pencil, Trash2, Plus } from 'lucide-react'
 import { createOffice, updateOffice, deleteOffice } from '@/lib/actions/offices'
 import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
-interface Row {
-  id: string
-  code: string
-  name_ar: string
-  name_en: string
-  is_active: boolean
-  area_id: string
-  area_name: string
-  governorate_name: string
-  created_at: string
-}
+interface Row { id: string; code: string; name_ar: string; name_en: string; is_active: boolean; area_id: string; area_name: string; governorate_name: string; created_at: string }
 interface Area { id: string; name_ar: string; governorate_id: string }
 interface Governorate { id: string; name_ar: string }
 
-interface Props {
-  rows: Row[]
-  areas: Area[]
-  governorates: Governorate[]
+function NativeSelect({ value, onChange, options, placeholder, disabled }: {
+  value: string; onChange: (v: string) => void
+  options: { value: string; label: string }[]
+  placeholder?: string; disabled?: boolean
+}) {
+  return (
+    <select
+      value={value} onChange={e => onChange(e.target.value)} disabled={disabled}
+      className={cn(
+        'w-full h-9 rounded-lg border border-input bg-transparent px-3 text-sm outline-none transition-colors',
+        'focus:border-ring focus:ring-2 focus:ring-ring/50',
+        'disabled:cursor-not-allowed disabled:opacity-50',
+        !value && 'text-muted-foreground'
+      )}
+    >
+      <option value="">{placeholder ?? 'اختر'}</option>
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  )
 }
 
-export function OfficesClient({ rows, areas, governorates }: Props) {
+export function OfficesClient({ rows, areas, governorates }: { rows: Row[]; areas: Area[]; governorates: Governorate[] }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Row | null>(null)
@@ -48,29 +53,17 @@ export function OfficesClient({ rows, areas, governorates }: Props) {
 
   const filteredAreas = areas.filter(a => a.governorate_id === governorateId)
 
-  const openAdd = () => {
-    setEditing(null)
-    setNameAr(''); setNameEn(''); setCode(''); setGovernorateId(''); setAreaId(''); setAddress(''); setIsActive(true)
-    setOpen(true)
-  }
+  const reset = () => { setNameAr(''); setNameEn(''); setCode(''); setGovernorateId(''); setAreaId(''); setAddress(''); setIsActive(true) }
+
+  const openAdd = () => { setEditing(null); reset(); setOpen(true) }
 
   const openEdit = (row: Row) => {
     setEditing(row)
-    setNameAr(row.name_ar)
-    setNameEn(row.name_en)
-    setCode(row.code)
-    // Find the governorate_id for this area
+    setNameAr(row.name_ar); setNameEn(row.name_en); setCode(row.code)
     const area = areas.find(a => a.id === row.area_id)
     setGovernorateId(area?.governorate_id ?? '')
-    setAreaId(row.area_id)
-    setAddress('')
-    setIsActive(row.is_active)
+    setAreaId(row.area_id); setAddress(''); setIsActive(row.is_active)
     setOpen(true)
-  }
-
-  const handleGovernorateChange = (val: string | null) => {
-    setGovernorateId(val ?? '')
-    setAreaId('')
   }
 
   const handleSave = async () => {
@@ -79,15 +72,13 @@ export function OfficesClient({ rows, areas, governorates }: Props) {
       const data = { name_ar: nameAr, name_en: nameEn, code, area_id: areaId, address, is_active: isActive }
       if (editing) await updateOffice(editing.id, data)
       else await createOffice(data)
-      setOpen(false)
-      router.refresh()
+      setOpen(false); router.refresh()
     } finally { setLoading(false) }
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('هل أنت متأكد من الحذف؟')) return
-    await deleteOffice(id)
-    router.refresh()
+    await deleteOffice(id); router.refresh()
   }
 
   const columns: ColumnDef<Row, unknown>[] = [
@@ -96,86 +87,80 @@ export function OfficesClient({ rows, areas, governorates }: Props) {
     { accessorKey: 'name_ar', header: 'اسم المكتب' },
     { accessorKey: 'governorate_name', header: 'المحافظة' },
     { accessorKey: 'area_name', header: 'المنطقة' },
-    {
-      accessorKey: 'is_active',
-      header: 'الحالة',
-      cell: ({ row }) => <ActiveBadge isActive={row.original.is_active} />,
-    },
+    { accessorKey: 'is_active', header: 'الحالة', cell: ({ row }) => <ActiveBadge isActive={row.original.is_active} /> },
     { accessorKey: 'created_at', header: 'تاريخ الإنشاء' },
     {
-      id: 'actions',
-      header: 'اجراء',
+      id: 'actions', header: 'اجراء',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" onClick={() => openEdit(row.original)}>
-            <Pencil className="w-4 h-4" />
-          </Button>
-          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500" onClick={() => handleDelete(row.original.id)}>
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" onClick={() => openEdit(row.original)}><Pencil className="w-4 h-4" /></Button>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500" onClick={() => handleDelete(row.original.id)}><Trash2 className="w-4 h-4" /></Button>
         </div>
       ),
     },
   ]
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <div className="flex justify-end mb-4">
-        <Button onClick={openAdd} className="bg-blue-700 hover:bg-blue-800 text-white gap-2">
+        <Button onClick={openAdd} style={{ background: '#cd7f32', color: '#fff' }} className="gap-2">
           <Plus className="w-4 h-4" /> إضافة
         </Button>
       </div>
       <DataTable data={rows} columns={columns} noDataText="لا يوجد بيانات" />
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
+      <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); setOpen(o) }}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'تعديل' : 'إضافة'} مكتب</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-2">
+          <div className="space-y-5 py-3">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>الاسم (عربي)</Label>
+              <div className="space-y-1.5">
+                <Label>الاسم (عربي) <span className="text-red-500">*</span></Label>
                 <Input value={nameAr} onChange={e => setNameAr(e.target.value)} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label>الاسم (انجليزي)</Label>
                 <Input value={nameEn} onChange={e => setNameEn(e.target.value)} dir="ltr" />
               </div>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label>الكود</Label>
               <Input value={code} onChange={e => setCode(e.target.value)} dir="ltr" />
             </div>
-            <div className="space-y-1">
-              <Label>المحافظة</Label>
-              <Select value={governorateId} onValueChange={handleGovernorateChange}>
-                <SelectTrigger><SelectValue placeholder="اختر المحافظة" /></SelectTrigger>
-                <SelectContent>
-                  {governorates.map(g => <SelectItem key={g.id} value={g.id}>{g.name_ar}</SelectItem>)}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label>المحافظة <span className="text-red-500">*</span></Label>
+                <NativeSelect
+                  value={governorateId}
+                  onChange={v => { setGovernorateId(v); setAreaId('') }}
+                  options={governorates.map(g => ({ value: g.id, label: g.name_ar }))}
+                  placeholder="اختر المحافظة"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>المنطقة <span className="text-red-500">*</span></Label>
+                <NativeSelect
+                  value={areaId}
+                  onChange={setAreaId}
+                  options={filteredAreas.map(a => ({ value: a.id, label: a.name_ar }))}
+                  placeholder="اختر المنطقة"
+                  disabled={!governorateId}
+                />
+              </div>
             </div>
-            <div className="space-y-1">
-              <Label>المنطقة</Label>
-              <Select value={areaId} onValueChange={(v) => setAreaId(v ?? '')} disabled={!governorateId}>
-                <SelectTrigger><SelectValue placeholder="اختر المنطقة" /></SelectTrigger>
-                <SelectContent>
-                  {filteredAreas.map(a => <SelectItem key={a.id} value={a.id}>{a.name_ar}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label>العنوان</Label>
               <Input value={address} onChange={e => setAddress(e.target.value)} />
             </div>
             <div className="flex items-center gap-3">
-              <Switch checked={isActive} onCheckedChange={setIsActive} id="is_active" />
-              <Label htmlFor="is_active">مفعل</Label>
+              <Switch checked={isActive} onCheckedChange={setIsActive} id="office_is_active" />
+              <Label htmlFor="office_is_active">مفعل</Label>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
-              <Button onClick={handleSave} disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button onClick={handleSave} disabled={loading} style={{ background: '#cd7f32', color: '#fff' }}>
                 {loading ? '...' : 'حفظ'}
               </Button>
             </div>
