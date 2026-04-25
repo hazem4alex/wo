@@ -66,7 +66,7 @@ export async function createWorkOrder(data: unknown) {
         electricity_meter_old_no, electricity_meter_new_no, electricity_old_reading, electricity_new_reading,
         water_meter_old_no, water_meter_new_no, water_old_reading, water_new_reading,
         amount, discount_amount, net_amount, created_by
-      ) VALUES (gen_random_uuid(),$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
+      ) VALUES (gen_random_uuid(),$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
       RETURNING id`,
       [
         workOrderNo, workOrderNo,
