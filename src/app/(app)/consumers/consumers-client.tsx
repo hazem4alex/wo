@@ -9,8 +9,31 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Pencil, Trash2, Plus, Search } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+function NativeSelect({ value, onChange, options, placeholder, disabled }: {
+  value: string; onChange: (v: string) => void
+  options: { value: string; label: string }[]
+  placeholder?: string; disabled?: boolean
+}) {
+  return (
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      disabled={disabled}
+      className={cn(
+        'w-full h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none transition-colors',
+        'focus:border-ring focus:ring-3 focus:ring-ring/50',
+        'disabled:cursor-not-allowed disabled:opacity-50',
+        !value && 'text-muted-foreground'
+      )}
+    >
+      <option value="">{placeholder ?? 'اختر'}</option>
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  )
+}
 import { createConsumer, updateConsumer, deleteConsumer } from '@/lib/actions/consumers'
 import { useRouter } from 'next/navigation'
 
@@ -163,25 +186,33 @@ export function ConsumersClient({ rows, governorates, areas, offices }: {
             {/* Cascading selects */}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1">
-                <Label>المحافظة <span className="text-red-500">*</span></Label>
-                <Select value={form.governorate_id} onValueChange={v => setForm(p => ({ ...p, governorate_id: v ?? '', area_id: '', office_id: '' }))}>
-                  <SelectTrigger><SelectValue placeholder="اختر" /></SelectTrigger>
-                  <SelectContent>{governorates.map(g => <SelectItem key={g.id} value={g.id}>{g.name_ar}</SelectItem>)}</SelectContent>
-                </Select>
+                <Label>المحافظة</Label>
+                <NativeSelect
+                  value={form.governorate_id}
+                  onChange={v => setForm(p => ({ ...p, governorate_id: v, area_id: '', office_id: '' }))}
+                  options={governorates.map(g => ({ value: g.id, label: g.name_ar }))}
+                  placeholder="اختر المحافظة"
+                />
               </div>
               <div className="space-y-1">
-                <Label>المنطقة <span className="text-red-500">*</span></Label>
-                <Select value={form.area_id} onValueChange={v => setForm(p => ({ ...p, area_id: v ?? '', office_id: '' }))} disabled={!form.governorate_id}>
-                  <SelectTrigger><SelectValue placeholder="اختر" /></SelectTrigger>
-                  <SelectContent>{filteredAreas.map(a => <SelectItem key={a.id} value={a.id}>{a.name_ar}</SelectItem>)}</SelectContent>
-                </Select>
+                <Label>المنطقة</Label>
+                <NativeSelect
+                  value={form.area_id}
+                  onChange={v => setForm(p => ({ ...p, area_id: v, office_id: '' }))}
+                  options={filteredAreas.map(a => ({ value: a.id, label: a.name_ar }))}
+                  placeholder="اختر المنطقة"
+                  disabled={!form.governorate_id}
+                />
               </div>
               <div className="space-y-1">
-                <Label>المكتب <span className="text-red-500">*</span></Label>
-                <Select value={form.office_id} onValueChange={v => set('office_id', v ?? '')} disabled={!form.area_id}>
-                  <SelectTrigger><SelectValue placeholder="اختر" /></SelectTrigger>
-                  <SelectContent>{filteredOffices.map(o => <SelectItem key={o.id} value={o.id}>{o.name_ar}</SelectItem>)}</SelectContent>
-                </Select>
+                <Label>المكتب</Label>
+                <NativeSelect
+                  value={form.office_id}
+                  onChange={v => set('office_id', v)}
+                  options={filteredOffices.map(o => ({ value: o.id, label: o.name_ar }))}
+                  placeholder="اختر المكتب"
+                  disabled={!form.area_id}
+                />
               </div>
             </div>
 
