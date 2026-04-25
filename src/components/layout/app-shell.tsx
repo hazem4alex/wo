@@ -12,25 +12,31 @@ interface AppShellProps {
 }
 
 export function AppShell({ locale, theme, userName, systemName, children }: AppShellProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Overlay for mobile */}
-      {sidebarOpen && (
+      {/* Mobile overlay */}
+      {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => setMobileOpen(false)}
         />
       )}
-      <AppSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <AppSidebar
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+        collapsed={collapsed}
+        onToggleCollapse={() => setCollapsed(c => !c)}
+      />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <TopBar
           locale={locale}
           theme={theme}
           userName={userName}
           systemName={systemName}
-          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          onMenuClick={() => setMobileOpen(m => !m)}
         />
         <main className="flex-1 overflow-y-auto p-6 bg-background">
           {children}
