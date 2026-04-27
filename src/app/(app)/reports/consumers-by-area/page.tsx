@@ -26,7 +26,7 @@ export default async function ConsumersByAreaPage() {
       <Card>
         <CardContent className="pt-6">
           <table id="consumers-area-table" className="w-full text-sm">
-            <thead><tr className="bg-gray-50 text-gray-600">
+            <thead><tr className="bg-muted text-muted-foreground">
               <th className="p-3 text-start">#</th>
               <th className="p-3 text-start">المحافظة</th>
               <th className="p-3 text-start">المنطقة</th>
@@ -35,16 +35,16 @@ export default async function ConsumersByAreaPage() {
             <tbody>
               {result.rows.map((r: { governorate: string; area: string; count: string }, i: number) => (
                 <tr key={i} className="border-t">
-                  <td className="p-3 text-gray-400">{i + 1}</td>
+                  <td className="p-3 text-muted-foreground">{i + 1}</td>
                   <td className="p-3">{r.governorate}</td>
                   <td className="p-3">{r.area}</td>
-                  <td className="p-3 text-end font-medium text-blue-600">{r.count}</td>
+                  <td className="p-3 text-end font-medium text-primary">{r.count}</td>
                 </tr>
               ))}
             </tbody>
-            <tfoot><tr className="bg-gray-50 font-bold border-t">
+            <tfoot><tr className="bg-muted font-bold border-t">
               <td colSpan={3} className="p-3 text-end">الإجمالي:</td>
-              <td className="p-3 text-end text-blue-700">{total}</td>
+              <td className="p-3 text-end text-primary">{total}</td>
             </tr></tfoot>
           </table>
         </CardContent>

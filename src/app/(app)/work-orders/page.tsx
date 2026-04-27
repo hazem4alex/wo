@@ -31,7 +31,7 @@ export default async function WorkOrdersPage() {
         breadcrumb={[{ label: 'الرئيسية', href: '/dashboard' }, { label: 'اوامر العمل' }]}
         actions={
           <Link href="/work-orders/new">
-            <Button className="bg-blue-700 hover:bg-blue-800 text-white gap-2">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
               <Plus className="w-4 h-4" /> إضافة امر عمل
             </Button>
           </Link>

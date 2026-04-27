@@ -48,7 +48,7 @@ export function GovernoratesClient({ rows }: { rows: Row[] }) {
       header: 'اجراء',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" onClick={() => openEdit(row.original)}>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-primary" onClick={() => openEdit(row.original)}>
             <Pencil className="w-4 h-4" />
           </Button>
           <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500" onClick={() => handleDelete(row.original.id)}>
@@ -60,9 +60,9 @@ export function GovernoratesClient({ rows }: { rows: Row[] }) {
   ]
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <div className="flex justify-end mb-4">
-        <Button onClick={openAdd} className="bg-blue-700 hover:bg-blue-800 text-white gap-2">
+        <Button onClick={openAdd} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
           <Plus className="w-4 h-4" /> إضافة
         </Button>
       </div>

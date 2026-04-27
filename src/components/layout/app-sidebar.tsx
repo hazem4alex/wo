@@ -57,33 +57,33 @@ export function AppSidebar({ mobileOpen, onMobileClose, collapsed, onToggleColla
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
-  const sidebarW = collapsed ? 'w-16' : 'w-64'
+  const sidebarW = collapsed ? 'w-[min(18rem,85vw)] md:w-16' : 'w-[min(18rem,85vw)] md:w-64'
 
   return (
     <div
       className={cn(
-        'fixed inset-y-0 end-0 z-40 flex flex-col overflow-y-auto transition-all duration-300 md:relative',
+        'fixed inset-y-0 right-0 z-50 flex-col overflow-y-auto transition-opacity duration-200 md:relative md:right-auto md:z-40',
         sidebarW,
-        mobileOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
+        mobileOpen ? 'flex opacity-100' : 'hidden opacity-0 md:flex md:opacity-100'
       )}
-      style={{ background: '#13151c' }}
+      style={{ background: 'var(--sidebar)' }}
     >
       {/* Logo + collapse toggle */}
       <div className="flex items-center justify-between px-3 py-4 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         {!collapsed && (
           <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-8 h-8 shrink-0 rounded flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#cd7f32,#f59e0b)' }}>
-              <Zap className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 shrink-0 rounded flex items-center justify-center bg-primary">
+              <Zap className="w-5 h-5 text-primary-foreground" />
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold truncate" style={{ color: '#cd7f32' }}>وزارة الكهرباء</div>
-              <div className="text-xs truncate" style={{ color: '#4b5563' }}>والماء</div>
+              <div className="text-xs font-bold truncate text-sidebar-accent-foreground">وزارة الكهرباء</div>
+              <div className="text-xs truncate text-sidebar-foreground">والماء</div>
             </div>
           </div>
         )}
         {collapsed && (
-          <div className="mx-auto w-8 h-8 rounded flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#cd7f32,#f59e0b)' }}>
-            <Zap className="w-5 h-5 text-white" />
+          <div className="mx-auto w-8 h-8 rounded flex items-center justify-center bg-primary">
+            <Zap className="w-5 h-5 text-primary-foreground" />
           </div>
         )}
         {/* Desktop collapse button */}
@@ -93,7 +93,7 @@ export function AppSidebar({ mobileOpen, onMobileClose, collapsed, onToggleColla
             className="hidden md:flex shrink-0 w-6 h-6 items-center justify-center rounded hover:bg-white/10 transition-colors"
             title="طي القائمة"
           >
-            <ChevronRight className="w-4 h-4" style={{ color: '#64748b' }} />
+            <ChevronRight className="w-4 h-4 text-sidebar-foreground" />
           </button>
         )}
       </div>
@@ -105,7 +105,7 @@ export function AppSidebar({ mobileOpen, onMobileClose, collapsed, onToggleColla
           className="hidden md:flex mx-auto mt-2 w-8 h-8 items-center justify-center rounded hover:bg-white/10 transition-colors shrink-0"
           title="توسيع القائمة"
         >
-          <ChevronLeft className="w-4 h-4" style={{ color: '#64748b' }} />
+          <ChevronLeft className="w-4 h-4 text-sidebar-foreground" />
         </button>
       )}
 
@@ -127,7 +127,7 @@ export function AppSidebar({ mobileOpen, onMobileClose, collapsed, onToggleColla
         {can('work_orders.view') && (
           <div className={cn('pt-2', collapsed && 'pt-1')}>
             {!collapsed && (
-              <p className="px-3 text-xs uppercase tracking-wider mb-1" style={{ color: '#374151' }}>{t('workOrders')}</p>
+              <p className="px-3 text-xs uppercase tracking-wider mb-1 text-sidebar-foreground/70">{t('workOrders')}</p>
             )}
             <NavItem
               href="/work-orders"
@@ -208,8 +208,8 @@ function NavItem({ href, icon, label, isActive, indent, onClose, collapsed }: {
         'flex items-center gap-3 rounded-md text-sm transition-colors',
         collapsed ? 'justify-center px-2 py-2' : (indent ? 'ps-8 px-3 py-2' : 'px-3 py-2'),
         isActive
-          ? 'text-[#cd7f32] bg-[rgba(205,127,50,0.12)]'
-          : 'text-[#64748b] hover:bg-[#1e2130] hover:text-[#cbd5e1]'
+          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+          : 'text-sidebar-foreground hover:bg-[#1e2130] hover:text-[#e2e8f0]'
       )}
     >
       <span className="flex-shrink-0">{icon}</span>
@@ -227,7 +227,7 @@ function CollapsibleSection({ label, icon, isOpen, onToggle, children, collapsed
     return (
       <div className="py-1">
         <div className="flex justify-center py-1" title={label}>
-          <span className="text-[#374151]">{icon}</span>
+          <span className="text-sidebar-foreground/70">{icon}</span>
         </div>
         {/* Show all children as icon-only items */}
         <div className="space-y-0.5">{children}</div>
@@ -239,7 +239,7 @@ function CollapsibleSection({ label, icon, isOpen, onToggle, children, collapsed
     <div>
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm transition-colors text-[#64748b] hover:bg-[#1e2130] hover:text-[#cbd5e1]"
+        className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm transition-colors text-sidebar-foreground hover:bg-[#1e2130] hover:text-[#e2e8f0]"
       >
         <div className="flex items-center gap-3">
           {icon}

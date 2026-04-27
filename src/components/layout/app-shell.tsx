@@ -17,11 +17,11 @@ export function AppShell({ locale, theme, userName, systemName, permissions, chi
   const [collapsed, setCollapsed] = useState(false)
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen w-full overflow-hidden">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -32,7 +32,7 @@ export function AppShell({ locale, theme, userName, systemName, permissions, chi
         onToggleCollapse={() => setCollapsed(c => !c)}
         permissions={permissions}
       />
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <TopBar
           locale={locale}
           theme={theme}
@@ -40,7 +40,7 @@ export function AppShell({ locale, theme, userName, systemName, permissions, chi
           systemName={systemName}
           onMenuClick={() => setMobileOpen(m => !m)}
         />
-        <main className="flex-1 overflow-y-auto p-6 bg-background">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 bg-background sm:p-6">
           {children}
         </main>
       </div>

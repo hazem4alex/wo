@@ -503,14 +503,14 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
                       className={cn(
                         'flex items-center gap-2 rounded-lg border px-3 py-2 text-sm text-start transition-colors w-full',
                         selectedAddrId === addr.id
-                          ? 'border-[#cd7f32] bg-[#cd7f32]/10 text-foreground'
+                          ? 'border-primary bg-primary/10 text-foreground'
                           : 'border-border bg-card hover:bg-muted/50'
                       )}
                     >
                       <span className={cn('w-2 h-2 rounded-full shrink-0',
-                        selectedAddrId === addr.id ? 'bg-[#cd7f32]' : 'bg-muted-foreground/30')} />
+                        selectedAddrId === addr.id ? 'bg-primary' : 'bg-muted-foreground/30')} />
                       <span className="flex-1 truncate">{label || 'عنوان بدون تفاصيل'}</span>
-                      {addr.is_default && <span className="text-xs text-[#cd7f32] shrink-0">افتراضي</span>}
+                      {addr.is_default && <span className="text-xs text-primary shrink-0">افتراضي</span>}
                     </button>
                   )
                 })}
@@ -709,7 +709,7 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
 
       <div className="flex justify-end gap-3">
         <Button variant="outline" onClick={() => router.back()}>إلغاء</Button>
-        <Button onClick={handleSubmit} disabled={loading} style={{ background: '#cd7f32', color: '#fff' }} className="px-8">
+        <Button onClick={handleSubmit} disabled={loading} className="px-8 bg-primary hover:bg-primary/90 text-primary-foreground">
           {loading ? '...' : init?.id ? 'حفظ التعديلات' : 'إنشاء أمر العمل'}
         </Button>
       </div>

@@ -11,7 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const cookieStore = await cookies()
   const locale = cookieStore.get('locale')?.value ?? 'ar'
-  const theme = cookieStore.get('theme')?.value ?? 'light'
+  const theme = cookieStore.get('theme')?.value ?? 'system'
   const t = await getTranslations('app')
   const permissions = await getPermissionMap()
 

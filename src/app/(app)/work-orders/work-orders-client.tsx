@@ -54,7 +54,7 @@ export function WorkOrdersClient({ rows }: { rows: WORow[] }) {
     { header: '#', cell: ({ row }) => row.index + 1, size: 50 },
     { accessorKey: 'work_order_no', header: 'رقم أمر العمل',
       cell: ({ row }) => (
-        <Link href={`/work-orders/${row.original.id}`} className="text-blue-600 hover:underline font-medium">
+        <Link href={`/work-orders/${row.original.id}`} className="text-primary hover:underline font-medium">
           {row.original.work_order_no}
         </Link>
       )
@@ -75,7 +75,7 @@ export function WorkOrdersClient({ rows }: { rows: WORow[] }) {
       cell: ({ row }) => (
         <div className="flex gap-1">
           <Link href={`/work-orders/${row.original.id}`}>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" title="عرض">
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-primary" title="عرض">
               <Eye className="w-4 h-4" />
             </Button>
           </Link>
@@ -85,7 +85,7 @@ export function WorkOrdersClient({ rows }: { rows: WORow[] }) {
             </Button>
           </Link>
           <a href={`/work-orders/${row.original.id}/print`} target="_blank" rel="noopener noreferrer">
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-[#cd7f32]" title="طباعة">
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-primary" title="طباعة">
               <Printer className="w-4 h-4" />
             </Button>
           </a>
@@ -125,7 +125,7 @@ export function WorkOrdersClient({ rows }: { rows: WORow[] }) {
           <RefreshCw className="w-4 h-4" /> تحديث
         </Button>
         <Link href="/work-orders/new">
-          <Button style={{ background: '#cd7f32', color: '#fff' }} className="gap-2">
+          <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
             <Plus className="w-4 h-4" /> أمر عمل جديد
           </Button>
         </Link>

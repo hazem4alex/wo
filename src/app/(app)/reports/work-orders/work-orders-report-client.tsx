@@ -105,7 +105,7 @@ export function WorkOrdersReportClient({ supervisors, offices, areas }: {
               </Select>
             </div>
             <div className="flex gap-2">
-              <Button onClick={handleFilter} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white gap-1 flex-1">
+              <Button onClick={handleFilter} disabled={loading} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1 flex-1">
                 <Filter className="w-4 h-4" /> {loading ? '...' : 'تطبيق الفلتر'}
               </Button>
               <Button variant="outline" onClick={reset} className="gap-1"><RotateCcw className="w-4 h-4" /></Button>
@@ -122,12 +122,12 @@ export function WorkOrdersReportClient({ supervisors, offices, areas }: {
               { label: 'إجمالي الإيرادات', value: formatKWD(totalRevenue), color: 'text-green-600', bg: 'bg-green-50' },
               { label: 'معلق', value: pendingCount, color: 'text-amber-600', bg: 'bg-amber-50' },
               { label: 'مكتمل', value: completedCount, color: 'text-green-600', bg: 'bg-green-50' },
-              { label: 'إجمالي الأوامر', value: rows.length, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { label: 'إجمالي الأوامر', value: rows.length, color: 'text-primary', bg: 'bg-accent' },
             ].map(c => (
               <Card key={c.label} className="border-0 shadow-sm">
                 <CardContent className="p-4">
                   <div className={`text-2xl font-bold ${c.color}`}>{c.value}</div>
-                  <div className="text-sm text-gray-500">{c.label}</div>
+                  <div className="text-sm text-muted-foreground">{c.label}</div>
                 </CardContent>
               </Card>
             ))}
@@ -142,7 +142,7 @@ export function WorkOrdersReportClient({ supervisors, offices, areas }: {
               </div>
               <div className="overflow-x-auto">
                 <table id="wo-report-table" className="w-full text-sm">
-                  <thead><tr className="bg-gray-50 text-gray-600">
+                  <thead><tr className="bg-muted text-muted-foreground">
                     <th className="p-2 text-start">#</th>
                     <th className="p-2 text-start">رقم أمر العمل</th>
                     <th className="p-2">المستهلك</th>
@@ -158,8 +158,8 @@ export function WorkOrdersReportClient({ supervisors, offices, areas }: {
                   <tbody>
                     {rows.map((r, i) => (
                       <tr key={r.id} className="border-t">
-                        <td className="p-2 text-gray-400">{i + 1}</td>
-                        <td className="p-2 font-medium text-blue-600">{r.work_order_no}</td>
+                        <td className="p-2 text-muted-foreground">{i + 1}</td>
+                        <td className="p-2 font-medium text-primary">{r.work_order_no}</td>
                         <td className="p-2 text-center">{r.consumer_name}</td>
                         <td className="p-2 text-center">{r.supervisor_name || '-'}</td>
                         <td className="p-2 text-center">{r.area_name || '-'}</td>
@@ -172,7 +172,7 @@ export function WorkOrdersReportClient({ supervisors, offices, areas }: {
                       </tr>
                     ))}
                     {rows.length > 0 && (
-                      <tr className="bg-gray-50 font-bold border-t">
+                      <tr className="bg-muted font-bold border-t">
                         <td colSpan={9} className="p-2 text-end">الإجمالي:</td>
                         <td className="p-2 text-end text-green-700">{formatKWD(totalRevenue)}</td>
                         <td></td>
@@ -180,7 +180,7 @@ export function WorkOrdersReportClient({ supervisors, offices, areas }: {
                     )}
                   </tbody>
                 </table>
-                {rows.length === 0 && <p className="text-center text-gray-400 py-8">لا يوجد بيانات</p>}
+                {rows.length === 0 && <p className="text-center text-muted-foreground py-8">لا يوجد بيانات</p>}
               </div>
             </CardContent>
           </Card>

@@ -36,7 +36,7 @@ export function WorkOrderStatusModal({ workOrderId, currentStatus }: { workOrder
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+      <Button onClick={() => setOpen(true)} variant="outline" className="border-primary text-primary hover:bg-accent">
         تغيير الحالة
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>

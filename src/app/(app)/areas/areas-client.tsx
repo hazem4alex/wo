@@ -70,7 +70,7 @@ export function AreasClient({ rows, governorates }: { rows: Row[]; governorates:
       id: 'actions', header: 'اجراء',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" onClick={() => openEdit(row.original)}><Pencil className="w-4 h-4" /></Button>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-primary" onClick={() => openEdit(row.original)}><Pencil className="w-4 h-4" /></Button>
           <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500" onClick={() => handleDelete(row.original.id)}><Trash2 className="w-4 h-4" /></Button>
         </div>
       ),
@@ -80,7 +80,7 @@ export function AreasClient({ rows, governorates }: { rows: Row[]; governorates:
   return (
     <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <div className="flex justify-end mb-4">
-        <Button onClick={openAdd} style={{ background: '#cd7f32', color: '#fff' }} className="gap-2">
+        <Button onClick={openAdd} className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
           <Plus className="w-4 h-4" /> إضافة
         </Button>
       </div>
@@ -113,7 +113,7 @@ export function AreasClient({ rows, governorates }: { rows: Row[]; governorates:
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
-              <Button onClick={handleSave} disabled={loading} style={{ background: '#cd7f32', color: '#fff' }}>
+              <Button onClick={handleSave} disabled={loading}>
                 {loading ? '...' : 'حفظ'}
               </Button>
             </div>

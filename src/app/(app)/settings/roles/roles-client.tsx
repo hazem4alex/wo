@@ -125,13 +125,13 @@ export function RolesClient({ roles, permissions, rolePermissions }: Props) {
     {
       accessorKey: 'description',
       header: 'الوصف',
-      cell: ({ row }) => row.original.description ?? <span className="text-gray-400">—</span>,
+      cell: ({ row }) => row.original.description ?? <span className="text-muted-foreground">—</span>,
     },
     {
       accessorKey: 'permission_count',
       header: 'عدد الصلاحيات',
       cell: ({ row }) => (
-        <span className="inline-flex items-center justify-center bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-xs font-medium">
+        <span className="inline-flex items-center justify-center bg-accent text-primary rounded-full px-2 py-0.5 text-xs font-medium">
           {row.original.permission_count}
         </span>
       ),
@@ -144,7 +144,7 @@ export function RolesClient({ roles, permissions, rolePermissions }: Props) {
           <Button
             size="sm"
             variant="outline"
-            className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+            className="gap-2 text-primary border-primary/30 hover:bg-accent"
             onClick={() => openPermissionsModal(row.original)}
           >
             <ShieldCheck className="w-4 h-4" />
@@ -167,7 +167,7 @@ export function RolesClient({ roles, permissions, rolePermissions }: Props) {
   return (
     <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <div className="flex justify-end mb-4">
-        <Button onClick={() => setAddOpen(true)} className="bg-[#cd7f32] hover:bg-[#b56b20] text-white gap-2">
+        <Button onClick={() => setAddOpen(true)} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
           <Plus className="w-4 h-4" /> إضافة دور
         </Button>
       </div>
@@ -190,7 +190,7 @@ export function RolesClient({ roles, permissions, rolePermissions }: Props) {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setAddOpen(false)}>إلغاء</Button>
-              <Button onClick={handleCreate} disabled={loading} className="bg-[#cd7f32] hover:bg-[#b56b20] text-white">
+              <Button onClick={handleCreate} disabled={loading} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 {loading ? '...' : 'حفظ'}
               </Button>
             </div>
@@ -205,27 +205,27 @@ export function RolesClient({ roles, permissions, rolePermissions }: Props) {
           </DialogHeader>
 
           {permissions.length === 0 ? (
-            <p className="text-center text-gray-400 py-8">لا توجد صلاحيات محددة في النظام</p>
+            <p className="text-center text-muted-foreground py-8">لا توجد صلاحيات محددة في النظام</p>
           ) : (
             <div className="space-y-6 py-2">
               {Object.entries(groupedPerms).map(([moduleKey, perms]) => (
                 <div key={moduleKey}>
-                  <h4 className="text-sm font-semibold text-gray-700 bg-gray-50 px-3 py-2 rounded-md mb-3 uppercase tracking-wide">
+                  <h4 className="text-sm font-semibold text-foreground bg-muted px-3 py-2 rounded-md mb-3 uppercase tracking-wide">
                     {MODULE_LABELS[moduleKey] ?? moduleKey}
                   </h4>
                   <div className="grid grid-cols-2 gap-2 px-2">
                     {perms.map(p => (
-                      <label key={p.id} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 rounded-md p-2 transition-colors">
+                      <label key={p.id} className="flex items-start gap-3 cursor-pointer hover:bg-muted rounded-md p-2 transition-colors">
                         <input
                           type="checkbox"
-                          className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600"
+                          className="mt-0.5 h-4 w-4 rounded border-border text-primary"
                           checked={checkedPerms.has(p.id)}
                           onChange={() => togglePerm(p.id)}
                         />
                         <div>
-                          <p className="text-sm font-medium text-gray-800">{p.name}</p>
+                          <p className="text-sm font-medium text-foreground">{p.name}</p>
                           {p.description && (
-                            <p className="text-xs text-gray-500">{p.description}</p>
+                            <p className="text-xs text-muted-foreground">{p.description}</p>
                           )}
                         </div>
                       </label>

@@ -1,5 +1,8 @@
+'use client'
+
 import { Card, CardContent } from '@/components/ui/card'
-import { TrendingUp, Clock, CheckCircle, FileText, Users } from 'lucide-react'
+import { TrendingUp, Clock, FileText, Users } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import type { DashboardStats } from '@/lib/queries/dashboard'
 import { formatKWD } from '@/lib/format'
 
@@ -10,65 +13,73 @@ function pctChange(current: number, previous: number): string {
 }
 
 export function SummaryCards({ stats }: { stats: DashboardStats }) {
+  const t = useTranslations('dashboard')
   const cards = [
     {
-      title: 'إجمالي الإيرادات',
+      title: t('totalRevenue'),
       value: formatKWD(stats.totalRevenue),
       icon: TrendingUp,
-      color: 'text-green-600',
-      bg: 'bg-green-50',
+      color: 'text-emerald-600 dark:text-emerald-400',
+      bg: 'bg-emerald-500/10',
       change: pctChange(stats.totalRevenue, stats.previousRevenue),
+      label: t('revenueGrowth'),
     },
     {
-      title: 'أوامر معلقة',
+      title: t('pendingOrders'),
       value: stats.pendingCount.toString(),
       icon: Clock,
-      color: 'text-amber-600',
-      bg: 'bg-amber-50',
-      sub: `${stats.completedCount} مكتمل`,
+      color: 'text-amber-600 dark:text-amber-400',
+      bg: 'bg-amber-500/10',
+      sub: `${stats.completedCount} ${t('completed')}`,
+      label: t('needsFollowUp'),
     },
     {
-      title: 'إجمالي المستهلكين',
+      title: t('totalConsumers'),
       value: stats.totalConsumers.toString(),
       icon: Users,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      color: 'text-primary',
+      bg: 'bg-accent',
       change: '+100%',
+      label: t('consumerBase'),
     },
     {
-      title: 'إجمالي أوامر العمل',
+      title: t('totalOrders'),
       value: stats.totalOrders.toString(),
       icon: FileText,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
+      color: 'text-violet-600 dark:text-violet-400',
+      bg: 'bg-violet-500/10',
       change: pctChange(stats.totalOrders, stats.previousOrders),
+      label: t('operationVolume'),
     },
   ]
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <Card className="border-border/70 shadow-sm">
+      <CardContent className="grid gap-0 p-0 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map((card) => {
         const Icon = card.icon
         return (
-          <Card key={card.title} className="border-0 shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between mb-3">
-                <div className={`w-10 h-10 rounded-full ${card.bg} flex items-center justify-center`}>
-                  <Icon className={`w-5 h-5 ${card.color}`} />
-                </div>
+          <div key={card.title} className="border-b border-border/70 p-4 last:border-b-0 sm:[&:nth-child(odd)]:border-e xl:border-b-0 xl:border-e xl:last:border-e-0">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="text-xs font-medium text-muted-foreground">{card.label}</div>
+                <div className={`mt-2 text-2xl font-bold tracking-tight ${card.color}`}>{card.value}</div>
+                <div className="mt-1 text-sm text-foreground">{card.title}</div>
               </div>
-              <div className={`text-2xl font-bold ${card.color} mb-1`}>{card.value}</div>
-              <div className="text-sm text-gray-500 mb-1">{card.title}</div>
-              {card.change && (
-                <div className="text-xs text-green-600 font-medium">
-                  {card.change} <span className="text-gray-400">مقارنة بالفترة السابقة</span>
+              <div className={`flex size-10 shrink-0 items-center justify-center rounded-md ${card.bg}`}>
+                <Icon className={`size-5 ${card.color}`} />
+              </div>
+            </div>
+            {card.change && (
+              <div className="mt-3 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  {card.change} <span className="text-muted-foreground">{t('comparedToPrevious')}</span>
                 </div>
               )}
-              {card.sub && <div className="text-xs text-gray-400">{card.sub} في التنفيذ</div>}
-            </CardContent>
-          </Card>
+            {card.sub && <div className="mt-3 text-xs text-muted-foreground">{card.sub} {t('inExecution')}</div>}
+          </div>
         )
       })}
-    </div>
+      </CardContent>
+    </Card>
   )
 }

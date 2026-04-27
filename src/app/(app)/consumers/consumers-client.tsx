@@ -225,7 +225,7 @@ export function ConsumersClient({ rows, governorates, areas, offices }: {
       id: 'actions', header: 'اجراء',
       cell: ({ row }) => (
         <div className="flex gap-2">
-          <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" onClick={() => openEdit(row.original)}>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-primary" onClick={() => openEdit(row.original)}>
             <Pencil className="w-4 h-4" />
           </Button>
           <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500" onClick={() => handleDelete(row.original.id)}>
@@ -242,13 +242,13 @@ export function ConsumersClient({ rows, governorates, areas, offices }: {
   ].filter(Boolean).join(' - ')
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <div className="flex items-center justify-between mb-4 gap-4">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="بحث..." className="ps-9" />
         </div>
-        <Button onClick={openAdd} className="bg-blue-700 hover:bg-blue-800 text-white gap-2">
+        <Button onClick={openAdd} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
           <Plus className="w-4 h-4" /> إضافة
         </Button>
       </div>
@@ -359,7 +359,7 @@ export function ConsumersClient({ rows, governorates, areas, offices }: {
                   <span className="text-sm text-muted-foreground">{addresses.length} عنوان مسجل</span>
                   <Button size="sm"
                     onClick={() => { if (showAddrForm) { cancelAddrForm() } else { setEditingAddrId(null); setAddrForm(emptyAddrForm()); setShowAddrForm(true) } }}
-                    className="gap-1.5 bg-[#cd7f32] hover:bg-[#b56b20] text-white text-xs">
+                    className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs">
                     <Plus className="w-3.5 h-3.5" /> إضافة عنوان
                   </Button>
                 </div>
@@ -434,7 +434,7 @@ export function ConsumersClient({ rows, governorates, areas, offices }: {
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={cancelAddrForm}>إلغاء</Button>
                       <Button size="sm" onClick={handleSaveAddress} disabled={addrSaving}
-                        className="bg-[#cd7f32] hover:bg-[#b56b20] text-white">
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         {addrSaving ? '...' : (editingAddrId ? 'حفظ التعديلات' : 'إضافة')}
                       </Button>
                     </div>
@@ -451,9 +451,9 @@ export function ConsumersClient({ rows, governorates, areas, offices }: {
                     {addresses.map(addr => (
                       <div key={addr.id} className={cn(
                         'flex items-start gap-3 rounded-lg border p-3 text-sm transition-colors',
-                        addr.is_default ? 'border-[#cd7f32]/50 bg-[#cd7f32]/5' : 'border-border bg-card'
+                        addr.is_default ? 'border-primary/50 bg-primary/5' : 'border-border bg-card'
                       )}>
-                        <MapPin className={cn('w-4 h-4 mt-0.5 shrink-0', addr.is_default ? 'text-[#cd7f32]' : 'text-muted-foreground')} />
+                        <MapPin className={cn('w-4 h-4 mt-0.5 shrink-0', addr.is_default ? 'text-primary' : 'text-muted-foreground')} />
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-foreground">{addrSummary(addr)}</div>
                           <div className="flex items-center gap-3 mt-0.5 flex-wrap">
@@ -468,17 +468,17 @@ export function ConsumersClient({ rows, governorates, areas, offices }: {
                         <div className="flex items-center gap-1 shrink-0">
                           {!addr.is_default && (
                             <button onClick={() => handleSetDefault(addr.id)} title="تعيين كافتراضي"
-                              className="p-1 text-muted-foreground hover:text-[#cd7f32] transition-colors">
+                              className="p-1 text-muted-foreground hover:text-primary transition-colors">
                               <StarOff className="w-3.5 h-3.5" />
                             </button>
                           )}
                           {addr.is_default && (
-                            <span className="flex items-center gap-1 text-xs text-[#cd7f32] font-medium px-1">
+                            <span className="flex items-center gap-1 text-xs text-primary font-medium px-1">
                               <Star className="w-3 h-3 fill-current" /> افتراضي
                             </span>
                           )}
                           <button onClick={() => startEditAddress(addr)} title="تعديل"
-                            className="p-1 text-muted-foreground hover:text-blue-600 transition-colors">
+                            className="p-1 text-muted-foreground hover:text-primary transition-colors">
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button onClick={() => handleDeleteAddress(addr.id)} title="حذف"

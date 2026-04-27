@@ -10,12 +10,12 @@ export function PageHeader({ title, subtitle, actions, breadcrumb }: PageHeaderP
     <div className="flex items-start justify-between mb-6">
       <div>
         {breadcrumb && breadcrumb.length > 0 && (
-          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
             {breadcrumb.map((item, i) => (
               <span key={i} className="flex items-center gap-2">
                 {i > 0 && <span>»</span>}
                 {item.href ? (
-                  <a href={item.href} className="hover:text-gray-700">{item.label}</a>
+                  <a href={item.href} className="hover:text-foreground">{item.label}</a>
                 ) : (
                   <span>{item.label}</span>
                 )}
@@ -23,8 +23,8 @@ export function PageHeader({ title, subtitle, actions, breadcrumb }: PageHeaderP
             ))}
           </nav>
         )}
-        <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
-        {subtitle && <p className="text-sm text-gray-500 mt-0.5">{subtitle}</p>}
+        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+        {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>

@@ -1,63 +1,54 @@
+'use client'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useTranslations } from 'next-intl'
 import type { TopService, TopSupervisor } from '@/lib/queries/dashboard'
 import { formatKWD } from '@/lib/format'
 
 export function TopTables({ topServices, topSupervisors }: { topServices: TopService[]; topSupervisors: TopSupervisor[] }) {
-  return (
-    <div className="space-y-6">
-      <Card className="border-0 shadow-sm">
-        <CardHeader><CardTitle className="text-sm font-semibold">أعلى الخدمات</CardTitle></CardHeader>
-        <CardContent>
-          <table className="w-full text-xs">
-            <thead><tr className="text-gray-500 border-b">
-              <th className="text-start pb-2">#</th>
-              <th className="text-start pb-2">اسم الخدمة</th>
-              <th className="text-end pb-2">الاستخدام</th>
-              <th className="text-end pb-2">الإجمالي</th>
-            </tr></thead>
-            <tbody>
-              {topServices.map((s, i) => (
-                <tr key={i} className="border-b last:border-0">
-                  <td className="py-2 text-gray-400">{i + 1}</td>
-                  <td className="py-2 text-gray-700 truncate max-w-28">{s.name_ar}</td>
-                  <td className="py-2 text-end text-blue-600">{s.usage_count}</td>
-                  <td className="py-2 text-end text-green-600">{formatKWD(s.total_revenue)}</td>
-                </tr>
-              ))}
-              {topServices.length === 0 && (
-                <tr><td colSpan={4} className="py-4 text-center text-gray-400">لا يوجد بيانات</td></tr>
-              )}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
+  const t = useTranslations('dashboard')
 
-      <Card className="border-0 shadow-sm">
-        <CardHeader><CardTitle className="text-sm font-semibold">أعلى المشرفين</CardTitle></CardHeader>
-        <CardContent>
-          <table className="w-full text-xs">
-            <thead><tr className="text-gray-500 border-b">
-              <th className="text-start pb-2">#</th>
-              <th className="text-start pb-2">المشرف</th>
-              <th className="text-end pb-2">الأوامر</th>
-              <th className="text-end pb-2">الإيرادات</th>
-            </tr></thead>
-            <tbody>
-              {topSupervisors.map((s, i) => (
-                <tr key={i} className="border-b last:border-0">
-                  <td className="py-2 text-gray-400">{i + 1}</td>
-                  <td className="py-2 text-gray-700">{s.full_name}</td>
-                  <td className="py-2 text-end text-blue-600">{s.total_orders}</td>
-                  <td className="py-2 text-end text-green-600">{formatKWD(s.total_revenue)}</td>
-                </tr>
-              ))}
-              {topSupervisors.length === 0 && (
-                <tr><td colSpan={4} className="py-4 text-center text-gray-400">لا يوجد بيانات</td></tr>
-              )}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
-    </div>
+  return (
+    <Card className="border-border/70 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base font-semibold">{t('performanceRanking')}</CardTitle>
+        <p className="text-xs text-muted-foreground">{t('performanceSubtitle')}</p>
+      </CardHeader>
+      <CardContent className="grid gap-6 lg:grid-cols-2">
+        <section>
+          <div className="mb-3 text-sm font-semibold">{t('topServices')}</div>
+          <div className="space-y-2">
+            {topServices.map((s, i) => (
+              <div key={i} className="grid grid-cols-[2rem_1fr_auto] items-center gap-3 rounded-lg border border-border/70 bg-muted/20 p-3">
+                <span className="flex size-7 items-center justify-center rounded-md bg-accent text-xs font-semibold text-accent-foreground">{i + 1}</span>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium text-foreground">{s.name_ar}</div>
+                  <div className="text-xs text-muted-foreground">{s.usage_count} {t('usage')}</div>
+                </div>
+                <div className="text-end text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatKWD(s.total_revenue)}</div>
+              </div>
+            ))}
+            {topServices.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">{t('topServicesEmpty')}</p>}
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-3 text-sm font-semibold">{t('topSupervisors')}</div>
+          <div className="space-y-2">
+            {topSupervisors.map((s, i) => (
+              <div key={i} className="grid grid-cols-[2rem_1fr_auto] items-center gap-3 rounded-lg border border-border/70 bg-muted/20 p-3">
+                <span className="flex size-7 items-center justify-center rounded-md bg-secondary text-xs font-semibold text-secondary-foreground">{i + 1}</span>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium text-foreground">{s.full_name}</div>
+                  <div className="text-xs text-muted-foreground">{s.total_orders} {t('orderUnit')}, {s.pending} {t('pending')}</div>
+                </div>
+                <div className="text-end text-sm font-semibold text-emerald-600 dark:text-emerald-400">{formatKWD(s.total_revenue)}</div>
+              </div>
+            ))}
+            {topSupervisors.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">{t('topSupervisorsEmpty')}</p>}
+          </div>
+        </section>
+      </CardContent>
+    </Card>
   )
 }

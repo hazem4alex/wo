@@ -12,8 +12,8 @@ import { formatKWD } from '@/lib/format'
 function Field({ label, value }: { label: string; value?: string | null }) {
   return (
     <div>
-      <dt className="text-xs text-gray-500 mb-0.5">{label}</dt>
-      <dd className="text-sm font-medium text-gray-800">{value || '-'}</dd>
+      <dt className="text-xs text-muted-foreground mb-0.5">{label}</dt>
+      <dd className="text-sm font-medium text-foreground">{value || '-'}</dd>
     </div>
   )
 }
@@ -70,7 +70,7 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
         actions={
           <div className="flex gap-2">
             <a href={`/work-orders/${id}/print`} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" className="gap-2 bg-[#cd7f32] hover:bg-[#b56b20] text-white">
+              <Button size="sm" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Printer className="w-4 h-4" />طباعة
               </Button>
             </a>
@@ -90,7 +90,7 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
           {/* Work Order Info */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-700">أوامر العمل</CardTitle>
+              <CardTitle className="text-sm font-semibold text-foreground">أوامر العمل</CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4 text-sm">
@@ -98,7 +98,7 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
                 <Field label="كود أمر العمل" value={wo.work_order_code} />
                 <Field label="التاريخ" value={new Date(wo.created_at).toLocaleDateString('ar-KW')} />
                 <div>
-                  <dt className="text-xs text-gray-500 mb-0.5">الحالة</dt>
+                  <dt className="text-xs text-muted-foreground mb-0.5">الحالة</dt>
                   <dd><StatusBadge status={wo.status} /></dd>
                 </div>
                 <Field label="المنطقة" value={wo.area_name} />
@@ -106,13 +106,13 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
                 <Field label="المشرف" value={wo.supervisor_name} />
                 <Field label="طريقة الدفع" value={wo.payment_method_name} />
                 <div>
-                  <dt className="text-xs text-gray-500 mb-0.5">غرامة</dt>
+                  <dt className="text-xs text-muted-foreground mb-0.5">غرامة</dt>
                   <dd className="text-sm font-medium">{wo.has_fine ? 'نعم' : 'لا'}</dd>
                 </div>
                 {wo.notes && (
                   <div className="col-span-2 md:col-span-4">
-                    <dt className="text-xs text-gray-500 mb-0.5">ملاحظات</dt>
-                    <dd className="text-sm text-gray-700">{wo.notes}</dd>
+                    <dt className="text-xs text-muted-foreground mb-0.5">ملاحظات</dt>
+                    <dd className="text-sm text-foreground">{wo.notes}</dd>
                   </div>
                 )}
               </dl>
@@ -122,7 +122,7 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
           {/* Consumer Info */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-700">المستهلك</CardTitle>
+              <CardTitle className="text-sm font-semibold text-foreground">المستهلك</CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-4 text-sm">
@@ -145,7 +145,7 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
           {(hasElec || hasWater) && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-gray-700">العدادات</CardTitle>
+                <CardTitle className="text-sm font-semibold text-foreground">العدادات</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -185,12 +185,12 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
           {/* Billing items */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-700">البنود</CardTitle>
+              <CardTitle className="text-sm font-semibold text-foreground">البنود</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b text-gray-600 text-xs">
+                  <tr className="bg-muted border-b text-muted-foreground text-xs">
                     <th className="text-start px-4 py-2.5">#</th>
                     <th className="text-start px-4 py-2.5">الخدمة</th>
                     <th className="px-3 py-2.5 text-center">الكمية</th>
@@ -202,28 +202,28 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
                 </thead>
                 <tbody>
                   {itemsRes.rows.map((item, i) => (
-                    <tr key={item.id} className="border-b last:border-0 hover:bg-gray-50/50">
-                      <td className="px-4 py-2.5 text-gray-400">{i + 1}</td>
+                    <tr key={item.id} className="border-b last:border-0 hover:bg-muted/50">
+                      <td className="px-4 py-2.5 text-muted-foreground">{i + 1}</td>
                       <td className="px-4 py-2.5">{item.service_name_ar || '-'}</td>
                       <td className="px-3 py-2.5 text-center">{item.quantity}</td>
                       <td className="px-3 py-2.5 text-center">{formatKWD(item.unit_price)}</td>
                       <td className="px-3 py-2.5 text-center text-red-500">{formatKWD(item.discount_amount)}</td>
                       <td className="px-3 py-2.5 text-center font-medium">{formatKWD(item.total_amount)}</td>
-                      <td className="px-3 py-2.5 text-center text-gray-500">
+                      <td className="px-3 py-2.5 text-center text-muted-foreground">
                         {item.created_at ? new Date(item.created_at).toLocaleDateString('ar-KW') : '-'}
                       </td>
                     </tr>
                   ))}
                   {itemsRes.rows.length === 0 && (
-                    <tr><td colSpan={7} className="px-4 py-6 text-center text-gray-400">لا توجد بنود</td></tr>
+                    <tr><td colSpan={7} className="px-4 py-6 text-center text-muted-foreground">لا توجد بنود</td></tr>
                   )}
                 </tbody>
               </table>
 
               {/* Totals */}
-              <div className="border-t px-4 py-3 space-y-1.5 bg-gray-50/50">
+              <div className="border-t px-4 py-3 space-y-1.5 bg-muted/50">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">المبلغ الإجمالي</span>
+                  <span className="text-muted-foreground">المبلغ الإجمالي</span>
                   <span className="font-medium">{formatKWD(wo.amount ?? 0)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -243,23 +243,23 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
         <div>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-gray-700">سجل الأحداث</CardTitle>
+              <CardTitle className="text-sm font-semibold text-foreground">سجل الأحداث</CardTitle>
             </CardHeader>
             <CardContent>
               {eventsRes.rows.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">لا توجد أحداث</p>
+                <p className="text-sm text-muted-foreground text-center py-4">لا توجد أحداث</p>
               ) : (
                 <div className="space-y-4">
                   {eventsRes.rows.map((event) => (
                     <div key={event.id} className="flex gap-3 text-sm">
                       <div className="flex flex-col items-center">
-                        <div className="w-2.5 h-2.5 rounded-full bg-blue-500 mt-0.5 flex-shrink-0" />
-                        <div className="w-px flex-1 bg-gray-200 mt-1" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary mt-0.5 flex-shrink-0" />
+                        <div className="w-px flex-1 bg-border mt-1" />
                       </div>
                       <div className="pb-3">
-                        <p className="font-medium text-gray-800">{event.message}</p>
-                        {event.actor_name && <p className="text-gray-500 text-xs mt-0.5">{event.actor_name}</p>}
-                        <p className="text-gray-400 text-xs mt-0.5">{new Date(event.created_at).toLocaleString('ar-KW')}</p>
+                        <p className="font-medium text-foreground">{event.message}</p>
+                        {event.actor_name && <p className="text-muted-foreground text-xs mt-0.5">{event.actor_name}</p>}
+                        <p className="text-muted-foreground text-xs mt-0.5">{new Date(event.created_at).toLocaleString('ar-KW')}</p>
                       </div>
                     </div>
                   ))}

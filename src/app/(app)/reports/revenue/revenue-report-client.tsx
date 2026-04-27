@@ -51,7 +51,7 @@ export function RevenueReportClient() {
               <Label>تاريخ الانتهاء</Label>
               <Input type="date" value={to} onChange={e => setTo(e.target.value)} dir="ltr" />
             </div>
-            <Button onClick={handleFilter} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+            <Button onClick={handleFilter} disabled={loading} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
               <Filter className="w-4 h-4" /> {loading ? '...' : 'تطبيق الفلتر'}
             </Button>
           </div>
@@ -61,22 +61,22 @@ export function RevenueReportClient() {
       {fetched && (
         <>
           <div className="grid grid-cols-3 gap-4">
-            <Card className="border-0 shadow-sm bg-blue-50">
+            <Card className="border-0 shadow-sm bg-accent">
               <CardContent className="p-5">
-                <div className="text-2xl font-bold text-blue-700">{formatKWD(totalRevenue)}</div>
-                <div className="text-sm text-gray-500">إجمالي الإيرادات</div>
+                <div className="text-2xl font-bold text-primary">{formatKWD(totalRevenue)}</div>
+                <div className="text-sm text-muted-foreground">إجمالي الإيرادات</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm bg-green-50">
               <CardContent className="p-5">
                 <div className="text-2xl font-bold text-green-700">{formatKWD(netRevenue)}</div>
-                <div className="text-sm text-gray-500">صافي الإيرادات</div>
+                <div className="text-sm text-muted-foreground">صافي الإيرادات</div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-sm bg-purple-50">
               <CardContent className="p-5">
                 <div className="text-2xl font-bold text-purple-700">{rows.length}</div>
-                <div className="text-sm text-gray-500">عدد الخدمات</div>
+                <div className="text-sm text-muted-foreground">عدد الخدمات</div>
               </CardContent>
             </Card>
           </div>
@@ -89,7 +89,7 @@ export function RevenueReportClient() {
               </div>
               <div className="overflow-x-auto">
                 <table id="revenue-table" className="w-full text-sm">
-                  <thead><tr className="bg-gray-50 text-gray-600">
+                  <thead><tr className="bg-muted text-muted-foreground">
                     <th className="p-2">#</th>
                     <th className="p-2 text-start">اسم الخدمة</th>
                     <th className="p-2">كود الخدمة</th>
@@ -103,10 +103,10 @@ export function RevenueReportClient() {
                   <tbody>
                     {rows.map((r, i) => (
                       <tr key={i} className="border-t">
-                        <td className="p-2 text-center text-gray-400">{i + 1}</td>
+                        <td className="p-2 text-center text-muted-foreground">{i + 1}</td>
                         <td className="p-2">{r.service_name_ar}</td>
-                        <td className="p-2 text-center text-blue-600">{r.service_code}</td>
-                        <td className="p-2 text-center text-blue-600">{r.order_count}</td>
+                        <td className="p-2 text-center text-primary">{r.service_code}</td>
+                        <td className="p-2 text-center text-primary">{r.order_count}</td>
                         <td className="p-2 text-center">{r.total_qty}</td>
                         <td className="p-2 text-center">{formatKWD(r.unit_price)}</td>
                         <td className="p-2 text-center">{formatKWD(r.total_revenue)}</td>
@@ -115,7 +115,7 @@ export function RevenueReportClient() {
                       </tr>
                     ))}
                     {rows.length > 0 && (
-                      <tr className="bg-gray-50 font-bold border-t">
+                      <tr className="bg-muted font-bold border-t">
                         <td colSpan={6} className="p-2 text-end">الإجمالي:</td>
                         <td className="p-2 text-center">{formatKWD(totalRevenue)}</td>
                         <td></td>
@@ -124,7 +124,7 @@ export function RevenueReportClient() {
                     )}
                   </tbody>
                 </table>
-                {rows.length === 0 && <p className="text-center text-gray-400 py-8">لا يوجد بيانات</p>}
+                {rows.length === 0 && <p className="text-center text-muted-foreground py-8">لا يوجد بيانات</p>}
               </div>
             </CardContent>
           </Card>

@@ -176,7 +176,7 @@ export function UsersClient({ users, roles, offices }: Props) {
       header: 'إجراء',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600" onClick={() => openEdit(row.original)}>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-primary" onClick={() => openEdit(row.original)}>
             <Pencil className="w-4 h-4" />
           </Button>
           <Button size="icon" variant="ghost" className="h-8 w-8 text-red-500" onClick={() => handleDelete(row.original.id)}>
@@ -199,7 +199,7 @@ export function UsersClient({ users, roles, offices }: Props) {
           <Bell className="w-4 h-4" />
           {notifLoading ? '...' : 'إرسال إشعار للجميع'}
         </Button>
-        <Button onClick={openAdd} className="bg-[#cd7f32] hover:bg-[#b56b20] text-white gap-2">
+        <Button onClick={openAdd} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
           <Plus className="w-4 h-4" /> إضافة مستخدم
         </Button>
       </div>
@@ -271,7 +271,7 @@ export function UsersClient({ users, roles, offices }: Props) {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
-              <Button onClick={handleSave} disabled={loading} className="bg-[#cd7f32] hover:bg-[#b56b20] text-white">
+              <Button onClick={handleSave} disabled={loading} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 {loading ? '...' : 'حفظ'}
               </Button>
             </div>

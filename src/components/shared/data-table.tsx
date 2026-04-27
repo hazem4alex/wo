@@ -44,13 +44,13 @@ export function DataTable<TData>({ data, columns, pageSize = 10, noDataText = 'Ù
 
   return (
     <div>
-      <div className="rounded-lg border border-gray-200 overflow-hidden">
+      <div className="rounded-lg border border-border overflow-hidden">
         <Table>
-          <TableHeader className="bg-gray-50">
+          <TableHeader className="bg-muted">
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => (
-                  <TableHead key={header.id} className="text-gray-600 font-semibold text-sm py-3">
+                  <TableHead key={header.id} className="text-muted-foreground font-semibold text-sm py-3">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -60,7 +60,7 @@ export function DataTable<TData>({ data, columns, pageSize = 10, noDataText = 'Ù
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map(row => (
-                <TableRow key={row.id} className="hover:bg-gray-50 transition-colors">
+                <TableRow key={row.id} className="hover:bg-muted transition-colors">
                   {row.getVisibleCells().map(cell => (
                     <TableCell key={cell.id} className="py-3 text-sm">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -70,7 +70,7 @@ export function DataTable<TData>({ data, columns, pageSize = 10, noDataText = 'Ù
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center text-gray-400 py-12">
+                <TableCell colSpan={columns.length} className="text-center text-muted-foreground py-12">
                   {noDataText}
                 </TableCell>
               </TableRow>
@@ -82,7 +82,7 @@ export function DataTable<TData>({ data, columns, pageSize = 10, noDataText = 'Ù
       {/* Pagination */}
       {table.getPageCount() > 1 && (
         <div className="flex items-center justify-between mt-4">
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground">
             {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
           </span>
           <div className="flex items-center gap-2">
