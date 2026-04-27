@@ -6,17 +6,32 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { ActiveBadge } from '@/components/shared/status-badge'
 import { Pencil, Trash2, Plus, Bell } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { createUser, updateUser, deleteUser, sendNotificationToAll } from '@/lib/actions/users'
 import { useRouter } from 'next/navigation'
+
+function NativeSelect({ value, onChange, options, placeholder }: {
+  value: string; onChange: (v: string) => void
+  options: { value: string; label: string }[]
+  placeholder?: string
+}) {
+  return (
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className={cn(
+        'w-full h-9 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none transition-colors',
+        'focus:border-ring focus:ring-2 focus:ring-ring/50',
+        !value && 'text-muted-foreground'
+      )}
+    >
+      <option value="">{placeholder ?? 'اختر'}</option>
+      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  )
+}
 
 interface UserRow {
   id: string
@@ -52,8 +67,8 @@ const emptyForm: FormState = {
   full_name: '',
   email: '',
   password: '',
-  role_id: '__none__',
-  office_id: '__none_office__',
+  role_id: '',
+  office_id: '',
   is_active: true,
 }
 
@@ -77,22 +92,24 @@ export function UsersClient({ users, roles, offices }: Props) {
       full_name: row.full_name,
       email: row.email,
       password: '',
-      role_id: row.role_id ?? '__none__',
-      office_id: row.office_id ?? '__none_office__',
+      role_id: row.role_id ?? '',
+      office_id: row.office_id ?? '',
       is_active: row.is_active,
     })
     setOpen(true)
   }
 
   const handleSave = async () => {
+    if (!form.full_name.trim()) { alert('الاسم الكامل مطلوب'); return }
+    if (!form.email.trim()) { alert('اسم المستخدم مطلوب'); return }
     setLoading(true)
     try {
       const data = {
         full_name: form.full_name,
-        email: form.email,
+        email: form.email.trim(),
         password: form.password || undefined,
-        role_id: form.role_id === '__none__' ? undefined : form.role_id || undefined,
-        office_id: form.office_id === '__none_office__' ? undefined : form.office_id || undefined,
+        role_id: form.role_id || undefined,
+        office_id: form.office_id || undefined,
         is_active: form.is_active,
       }
       if (editing) {
@@ -133,16 +150,16 @@ export function UsersClient({ users, roles, offices }: Props) {
   const columns: ColumnDef<UserRow, unknown>[] = [
     { header: '#', cell: ({ row }) => row.index + 1, size: 50 },
     { accessorKey: 'full_name', header: 'الاسم الكامل' },
-    { accessorKey: 'email', header: 'البريد الإلكتروني' },
+    { accessorKey: 'email', header: 'اسم المستخدم' },
     {
       accessorKey: 'role_name',
       header: 'الدور',
-      cell: ({ row }) => row.original.role_name ?? <span className="text-gray-400">—</span>,
+      cell: ({ row }) => row.original.role_name ?? <span className="text-muted-foreground">—</span>,
     },
     {
       accessorKey: 'office_name',
       header: 'المكتب',
-      cell: ({ row }) => row.original.office_name ?? <span className="text-gray-400">—</span>,
+      cell: ({ row }) => row.original.office_name ?? <span className="text-muted-foreground">—</span>,
     },
     {
       accessorKey: 'is_active',
@@ -171,7 +188,7 @@ export function UsersClient({ users, roles, offices }: Props) {
   ]
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-card rounded-xl shadow-sm border border-border p-6">
       <div className="flex justify-end gap-2 mb-4">
         <Button
           variant="outline"
@@ -182,7 +199,7 @@ export function UsersClient({ users, roles, offices }: Props) {
           <Bell className="w-4 h-4" />
           {notifLoading ? '...' : 'إرسال إشعار للجميع'}
         </Button>
-        <Button onClick={openAdd} className="bg-blue-700 hover:bg-blue-800 text-white gap-2">
+        <Button onClick={openAdd} className="bg-[#cd7f32] hover:bg-[#b56b20] text-white gap-2">
           <Plus className="w-4 h-4" /> إضافة مستخدم
         </Button>
       </div>
@@ -190,29 +207,31 @@ export function UsersClient({ users, roles, offices }: Props) {
       <DataTable data={users} columns={columns} noDataText="لا يوجد مستخدمون" />
 
       <Dialog open={open} onOpenChange={(o) => { if (!o) setForm(emptyForm); setOpen(o) }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{editing ? 'تعديل مستخدم' : 'إضافة مستخدم'}</DialogTitle>
+            <DialogTitle>{editing ? `تعديل: ${editing.full_name}` : 'إضافة مستخدم'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="space-y-1">
-              <Label>الاسم الكامل</Label>
-              <Input
-                value={form.full_name}
-                onChange={e => setForm(p => ({ ...p, full_name: e.target.value }))}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label>الاسم الكامل <span className="text-red-500">*</span></Label>
+                <Input
+                  value={form.full_name}
+                  onChange={e => setForm(p => ({ ...p, full_name: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>اسم المستخدم <span className="text-red-500">*</span></Label>
+                <Input
+                  dir="ltr"
+                  value={form.email}
+                  onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                  placeholder="username أو email@domain"
+                />
+              </div>
             </div>
             <div className="space-y-1">
-              <Label>البريد الإلكتروني</Label>
-              <Input
-                type="email"
-                dir="ltr"
-                value={form.email}
-                onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label>{editing ? 'كلمة المرور (اتركها فارغة للإبقاء على الحالية)' : 'كلمة المرور'}</Label>
+              <Label>{editing ? 'كلمة المرور (اتركها فارغة للإبقاء على الحالية)' : 'كلمة المرور'} {!editing && <span className="text-red-500">*</span>}</Label>
               <Input
                 type="password"
                 dir="ltr"
@@ -223,38 +242,28 @@ export function UsersClient({ users, roles, offices }: Props) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>الدور</Label>
-                <Select value={form.role_id} onValueChange={v => setForm(p => ({ ...p, role_id: v ?? '__none__' }))}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="اختر الدور" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">بدون دور</SelectItem>
-                    {roles.map(r => (
-                      <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <NativeSelect
+                  value={form.role_id}
+                  onChange={v => setForm(p => ({ ...p, role_id: v }))}
+                  options={roles.map(r => ({ value: r.id, label: r.name }))}
+                  placeholder="بدون دور"
+                />
               </div>
               <div className="space-y-1">
                 <Label>المكتب</Label>
-                <Select value={form.office_id} onValueChange={v => setForm(p => ({ ...p, office_id: v ?? '__none_office__' }))}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="اختر المكتب" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none_office__">بدون مكتب</SelectItem>
-                    {offices.map(o => (
-                      <SelectItem key={o.id} value={o.id}>{o.name_ar}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <NativeSelect
+                  value={form.office_id}
+                  onChange={v => setForm(p => ({ ...p, office_id: v }))}
+                  options={offices.map(o => ({ value: o.id, label: o.name_ar }))}
+                  placeholder="بدون مكتب"
+                />
               </div>
             </div>
             <div className="flex items-center gap-3">
               <input
                 id="is_active"
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300"
+                className="h-4 w-4 rounded border-input"
                 checked={form.is_active}
                 onChange={e => setForm(p => ({ ...p, is_active: e.target.checked }))}
               />
@@ -262,7 +271,7 @@ export function UsersClient({ users, roles, offices }: Props) {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
-              <Button onClick={handleSave} disabled={loading} className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button onClick={handleSave} disabled={loading} className="bg-[#cd7f32] hover:bg-[#b56b20] text-white">
                 {loading ? '...' : 'حفظ'}
               </Button>
             </div>

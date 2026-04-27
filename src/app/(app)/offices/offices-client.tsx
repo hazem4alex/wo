@@ -110,7 +110,7 @@ export function OfficesClient({ rows, areas, governorates }: { rows: Row[]; area
       <DataTable data={rows} columns={columns} noDataText="لا يوجد بيانات" />
 
       <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); setOpen(o) }}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'تعديل' : 'إضافة'} مكتب</DialogTitle>
           </DialogHeader>

@@ -34,9 +34,10 @@ interface AppSidebarProps {
   onMobileClose?: () => void
   collapsed?: boolean
   onToggleCollapse?: () => void
+  permissions?: Record<string, boolean>
 }
 
-export function AppSidebar({ mobileOpen, onMobileClose, collapsed, onToggleCollapse }: AppSidebarProps) {
+export function AppSidebar({ mobileOpen, onMobileClose, collapsed, onToggleCollapse, permissions = {} }: AppSidebarProps) {
   const t = useTranslations('nav')
   const pathname = usePathname()
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
@@ -44,6 +45,10 @@ export function AppSidebar({ mobileOpen, onMobileClose, collapsed, onToggleColla
     reports: false,
     settings: false,
   })
+
+  // Treat empty permissions object as "show everything" (admin / dev fallback);
+  // otherwise hide items the user has no .view permission for.
+  const can = (key: string) => Object.keys(permissions).length === 0 || !!permissions[key]
 
   const toggle = (key: string) => {
     if (collapsed) return // don't expand sections when icon-only
@@ -107,72 +112,84 @@ export function AppSidebar({ mobileOpen, onMobileClose, collapsed, onToggleColla
       {/* Navigation */}
       <nav className={cn('flex-1 py-4 space-y-1', collapsed ? 'px-1' : 'px-2')}>
         {/* Dashboard */}
-        <NavItem
-          href="/dashboard"
-          icon={<LayoutDashboard className="w-4 h-4 shrink-0" />}
-          label={t('dashboard')}
-          isActive={isActive('/dashboard')}
-          onClose={onMobileClose}
-          collapsed={collapsed}
-        />
-
-        {/* Work Orders */}
-        <div className={cn('pt-2', collapsed && 'pt-1')}>
-          {!collapsed && (
-            <p className="px-3 text-xs uppercase tracking-wider mb-1" style={{ color: '#374151' }}>{t('workOrders')}</p>
-          )}
+        {can('dashboard.view') && (
           <NavItem
-            href="/work-orders"
-            icon={<ClipboardList className="w-4 h-4 shrink-0" />}
-            label={t('workOrders')}
-            isActive={isActive('/work-orders')}
+            href="/dashboard"
+            icon={<LayoutDashboard className="w-4 h-4 shrink-0" />}
+            label={t('dashboard')}
+            isActive={isActive('/dashboard')}
             onClose={onMobileClose}
             collapsed={collapsed}
           />
-        </div>
+        )}
 
-        {/* Main Files */}
-        <CollapsibleSection
-          label={t('mainFiles')}
-          icon={<Folder className="w-4 h-4 shrink-0" />}
-          isOpen={expanded.mainFiles}
-          onToggle={() => toggle('mainFiles')}
-          collapsed={collapsed}
-        >
-          <NavItem href="/governorates" icon={<MapPin className="w-3.5 h-3.5 shrink-0" />} label={t('governorates')} isActive={isActive('/governorates')} indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/areas"        icon={<Map className="w-3.5 h-3.5 shrink-0" />}     label={t('areas')}         isActive={isActive('/areas')}        indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/offices"      icon={<Building2 className="w-3.5 h-3.5 shrink-0" />} label={t('offices')}     isActive={isActive('/offices')}      indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/consumers"    icon={<Users className="w-3.5 h-3.5 shrink-0" />}   label={t('consumers')}     isActive={isActive('/consumers')}    indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/services"     icon={<Wrench className="w-3.5 h-3.5 shrink-0" />}  label={t('services')}      isActive={isActive('/services')}     indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/supervisors"  icon={<UserCheck className="w-3.5 h-3.5 shrink-0" />} label={t('supervisors')} isActive={isActive('/supervisors')}  indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/settings/payment-methods" icon={<CreditCard className="w-3.5 h-3.5 shrink-0" />} label={t('paymentMethods')} isActive={isActive('/settings/payment-methods')} indent onClose={onMobileClose} collapsed={collapsed} />
-        </CollapsibleSection>
+        {/* Work Orders */}
+        {can('work_orders.view') && (
+          <div className={cn('pt-2', collapsed && 'pt-1')}>
+            {!collapsed && (
+              <p className="px-3 text-xs uppercase tracking-wider mb-1" style={{ color: '#374151' }}>{t('workOrders')}</p>
+            )}
+            <NavItem
+              href="/work-orders"
+              icon={<ClipboardList className="w-4 h-4 shrink-0" />}
+              label={t('workOrders')}
+              isActive={isActive('/work-orders')}
+              onClose={onMobileClose}
+              collapsed={collapsed}
+            />
+          </div>
+        )}
+
+        {/* Main Files — show section if user can see at least one item */}
+        {(can('governorates.view') || can('areas.view') || can('offices.view') ||
+          can('consumers.view') || can('services.view') || can('supervisors.view') ||
+          can('settings.view')) && (
+          <CollapsibleSection
+            label={t('mainFiles')}
+            icon={<Folder className="w-4 h-4 shrink-0" />}
+            isOpen={expanded.mainFiles}
+            onToggle={() => toggle('mainFiles')}
+            collapsed={collapsed}
+          >
+            {can('governorates.view') && <NavItem href="/governorates" icon={<MapPin className="w-3.5 h-3.5 shrink-0" />} label={t('governorates')} isActive={isActive('/governorates')} indent onClose={onMobileClose} collapsed={collapsed} />}
+            {can('areas.view')        && <NavItem href="/areas"        icon={<Map className="w-3.5 h-3.5 shrink-0" />}     label={t('areas')}         isActive={isActive('/areas')}        indent onClose={onMobileClose} collapsed={collapsed} />}
+            {can('offices.view')      && <NavItem href="/offices"      icon={<Building2 className="w-3.5 h-3.5 shrink-0" />} label={t('offices')}     isActive={isActive('/offices')}      indent onClose={onMobileClose} collapsed={collapsed} />}
+            {can('consumers.view')    && <NavItem href="/consumers"    icon={<Users className="w-3.5 h-3.5 shrink-0" />}   label={t('consumers')}     isActive={isActive('/consumers')}    indent onClose={onMobileClose} collapsed={collapsed} />}
+            {can('services.view')     && <NavItem href="/services"     icon={<Wrench className="w-3.5 h-3.5 shrink-0" />}  label={t('services')}      isActive={isActive('/services')}     indent onClose={onMobileClose} collapsed={collapsed} />}
+            {can('supervisors.view')  && <NavItem href="/supervisors"  icon={<UserCheck className="w-3.5 h-3.5 shrink-0" />} label={t('supervisors')} isActive={isActive('/supervisors')}  indent onClose={onMobileClose} collapsed={collapsed} />}
+            {can('settings.view')     && <NavItem href="/settings/payment-methods" icon={<CreditCard className="w-3.5 h-3.5 shrink-0" />} label={t('paymentMethods')} isActive={isActive('/settings/payment-methods')} indent onClose={onMobileClose} collapsed={collapsed} />}
+          </CollapsibleSection>
+        )}
 
         {/* Reports */}
-        <CollapsibleSection
-          label={t('reports')}
-          icon={<BarChart3 className="w-4 h-4 shrink-0" />}
-          isOpen={expanded.reports}
-          onToggle={() => toggle('reports')}
-          collapsed={collapsed}
-        >
-          <NavItem href="/reports/work-orders"      icon={<FileBarChart className="w-3.5 h-3.5 shrink-0" />} label={t('workOrdersReport')}  isActive={isActive('/reports/work-orders')}      indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/reports/revenue"          icon={<TrendingUp className="w-3.5 h-3.5 shrink-0" />}   label={t('revenueReport')}      isActive={isActive('/reports/revenue')}          indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/reports/supervisors"      icon={<UserCheck className="w-3.5 h-3.5 shrink-0" />}    label={t('supervisorsReport')}  isActive={isActive('/reports/supervisors')}      indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/reports/consumers-by-area" icon={<PieChart className="w-3.5 h-3.5 shrink-0" />}   label={t('consumersReport')}    isActive={isActive('/reports/consumers-by-area')} indent onClose={onMobileClose} collapsed={collapsed} />
-        </CollapsibleSection>
+        {can('reports.view') && (
+          <CollapsibleSection
+            label={t('reports')}
+            icon={<BarChart3 className="w-4 h-4 shrink-0" />}
+            isOpen={expanded.reports}
+            onToggle={() => toggle('reports')}
+            collapsed={collapsed}
+          >
+            <NavItem href="/reports/work-orders"      icon={<FileBarChart className="w-3.5 h-3.5 shrink-0" />} label={t('workOrdersReport')}  isActive={isActive('/reports/work-orders')}      indent onClose={onMobileClose} collapsed={collapsed} />
+            <NavItem href="/reports/revenue"          icon={<TrendingUp className="w-3.5 h-3.5 shrink-0" />}   label={t('revenueReport')}      isActive={isActive('/reports/revenue')}          indent onClose={onMobileClose} collapsed={collapsed} />
+            <NavItem href="/reports/supervisors"      icon={<UserCheck className="w-3.5 h-3.5 shrink-0" />}    label={t('supervisorsReport')}  isActive={isActive('/reports/supervisors')}      indent onClose={onMobileClose} collapsed={collapsed} />
+            <NavItem href="/reports/consumers-by-area" icon={<PieChart className="w-3.5 h-3.5 shrink-0" />}   label={t('consumersReport')}    isActive={isActive('/reports/consumers-by-area')} indent onClose={onMobileClose} collapsed={collapsed} />
+          </CollapsibleSection>
+        )}
 
-        {/* Settings */}
-        <CollapsibleSection
-          label={t('settings')}
-          icon={<Settings className="w-4 h-4 shrink-0" />}
-          isOpen={expanded.settings}
-          onToggle={() => toggle('settings')}
-          collapsed={collapsed}
-        >
-          <NavItem href="/settings/users" icon={<UserCog className="w-3.5 h-3.5 shrink-0" />}   label={t('users')} isActive={isActive('/settings/users')} indent onClose={onMobileClose} collapsed={collapsed} />
-          <NavItem href="/settings/roles" icon={<ShieldCheck className="w-3.5 h-3.5 shrink-0" />} label={t('roles')} isActive={isActive('/settings/roles')} indent onClose={onMobileClose} collapsed={collapsed} />
-        </CollapsibleSection>
+        {/* Settings — Users / Roles */}
+        {(can('users.view') || can('roles.view') || can('roles.edit')) && (
+          <CollapsibleSection
+            label={t('settings')}
+            icon={<Settings className="w-4 h-4 shrink-0" />}
+            isOpen={expanded.settings}
+            onToggle={() => toggle('settings')}
+            collapsed={collapsed}
+          >
+            {can('users.view') && <NavItem href="/settings/users" icon={<UserCog className="w-3.5 h-3.5 shrink-0" />}   label={t('users')} isActive={isActive('/settings/users')} indent onClose={onMobileClose} collapsed={collapsed} />}
+            {(can('roles.view') || can('roles.edit')) && <NavItem href="/settings/roles" icon={<ShieldCheck className="w-3.5 h-3.5 shrink-0" />} label={t('roles')} isActive={isActive('/settings/roles')} indent onClose={onMobileClose} collapsed={collapsed} />}
+          </CollapsibleSection>
+        )}
       </nav>
     </div>
   )

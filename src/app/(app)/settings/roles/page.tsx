@@ -4,8 +4,8 @@ import { RolesClient } from './roles-client'
 
 export default async function RolesPage() {
   const [rolesRes, permissionsRes, rolePermissionsRes] = await Promise.all([
-    pool.query(`SELECT r.id, r.name, r.description FROM role r ORDER BY r.name`),
-    pool.query(`SELECT id, name, module_key, description FROM permission ORDER BY module_key, name`).catch(() => ({ rows: [] })),
+    pool.query(`SELECT r.id, COALESCE(r.name_ar, r.name) AS name, r.description FROM app_role r ORDER BY COALESCE(r.name_ar, r.name)`),
+    pool.query(`SELECT id, key, COALESCE(name_ar, name_en, key) AS name, module_key, description FROM permission ORDER BY module_key, key`).catch(() => ({ rows: [] })),
     pool.query(`SELECT role_id, permission_id FROM role_permission`).catch(() => ({ rows: [] })),
   ])
 

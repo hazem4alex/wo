@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { WorkOrderStatusModal } from '@/components/work-orders/status-modal'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Zap, Droplets } from 'lucide-react'
+import { ArrowLeft, Zap, Droplets, Printer } from 'lucide-react'
 import { formatKWD } from '@/lib/format'
 
 function Field({ label, value }: { label: string; value?: string | null }) {
@@ -69,6 +69,11 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
         ]}
         actions={
           <div className="flex gap-2">
+            <a href={`/work-orders/${id}/print`} target="_blank" rel="noopener noreferrer">
+              <Button size="sm" className="gap-2 bg-[#cd7f32] hover:bg-[#b56b20] text-white">
+                <Printer className="w-4 h-4" />طباعة
+              </Button>
+            </a>
             <WorkOrderStatusModal workOrderId={id} currentStatus={wo.status} />
             <Link href="/work-orders">
               <Button variant="outline" size="sm" className="gap-2">

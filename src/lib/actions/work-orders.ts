@@ -2,6 +2,7 @@
 import { pool } from '@/lib/db'
 import { PoolClient } from 'pg'
 import { requireSession } from '@/lib/session'
+import { requirePermission } from '@/lib/permissions'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { redirect } from 'next/navigation'
@@ -25,6 +26,9 @@ const workOrderSchema = z.object({
   governorate_id: z.string().uuid().optional().or(z.literal('')),
   area_id: z.string().uuid().optional().or(z.literal('')),
   status: z.enum(['draft','open','assigned','in_progress','completed','cancelled']).default('open'),
+  manual_ref: z.string().optional(),
+  order_date: z.string().optional(),  // ISO date string YYYY-MM-DD
+  automated_figure: z.string().optional(),
   notes: z.string().optional(),
   street: z.string().optional(),
   house_no: z.string().optional(),
@@ -55,6 +59,7 @@ async function generateWorkOrderNo(client: PoolClient): Promise<string> {
 
 export async function createWorkOrder(data: unknown) {
   const session = await requireSession()
+  await requirePermission('work_orders.create')
   const parsed = workOrderSchema.parse(data)
 
   const netAmount = parsed.items.reduce((sum, item) => sum + item.total_amount, 0)
@@ -72,11 +77,11 @@ export async function createWorkOrder(data: unknown) {
         street, house_no, apartment_no,
         electricity_meter_old_no, electricity_meter_new_no, electricity_old_reading, electricity_new_reading,
         water_meter_old_no, water_meter_new_no, water_old_reading, water_new_reading,
-        amount, discount_amount, net_amount, created_by
-      ) VALUES (gen_random_uuid(),$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
+        amount, discount_amount, net_amount, created_by, order_date, automated_figure
+      ) VALUES (gen_random_uuid(),$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
       RETURNING id`,
       [
-        workOrderNo, workOrderNo,
+        workOrderNo, parsed.manual_ref || workOrderNo,
         parsed.consumer_id, parsed.office_id || null,
         parsed.supervisor_id || null, parsed.payment_method_id || null,
         parsed.status, parsed.notes || null,
@@ -88,6 +93,8 @@ export async function createWorkOrder(data: unknown) {
         parsed.water_old_reading, parsed.water_new_reading ?? null,
         netAmount, discountTotal, netAmount,
         session.userId,
+        parsed.order_date || null,
+        parsed.automated_figure || null,
       ]
     )
 
@@ -120,8 +127,73 @@ export async function createWorkOrder(data: unknown) {
   }
 }
 
+export async function updateWorkOrder(id: string, data: unknown) {
+  await requireSession()
+  await requirePermission('work_orders.edit')
+  const parsed = workOrderSchema.parse(data)
+  const netAmount = parsed.items.reduce((sum, item) => sum + item.total_amount, 0)
+  const discountTotal = parsed.items.reduce((sum, item) => sum + item.discount_amount, 0)
+
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+
+    await client.query(
+      `UPDATE work_order SET
+         work_order_code=$1, consumer_id=$2, office_id=$3, supervisor_id=$4,
+         payment_method_id=$5, notes=$6, governorate_id=$7, area_id=$8,
+         street=$9, house_no=$10, apartment_no=$11,
+         electricity_meter_old_no=$12, electricity_meter_new_no=$13,
+         electricity_old_reading=$14, electricity_new_reading=$15,
+         water_meter_old_no=$16, water_meter_new_no=$17,
+         water_old_reading=$18, water_new_reading=$19,
+         amount=$20, discount_amount=$21, net_amount=$22,
+         order_date=$23, automated_figure=$24
+       WHERE id=$25`,
+      [
+        parsed.manual_ref || null,
+        parsed.consumer_id, parsed.office_id || null,
+        parsed.supervisor_id || null, parsed.payment_method_id || null,
+        parsed.notes || null,
+        parsed.governorate_id || null, parsed.area_id || null,
+        parsed.street || null, parsed.house_no || null, parsed.apartment_no || null,
+        parsed.electricity_meter_old_no || null, parsed.electricity_meter_new_no || null,
+        parsed.electricity_old_reading, parsed.electricity_new_reading ?? null,
+        parsed.water_meter_old_no || null, parsed.water_meter_new_no || null,
+        parsed.water_old_reading, parsed.water_new_reading ?? null,
+        netAmount, discountTotal, netAmount,
+        parsed.order_date || null, parsed.automated_figure || null,
+        id,
+      ]
+    )
+
+    // Replace items: delete old, insert new
+    await client.query('DELETE FROM work_order_item WHERE work_order_id=$1', [id])
+    for (const item of parsed.items) {
+      await client.query(
+        `INSERT INTO work_order_item (id, work_order_id, service_name_ar, service_name_en, service_code,
+           quantity, unit_price, discount_amount, fine_amount, total_amount, service_date)
+         VALUES (gen_random_uuid(),$1,$2,$3,$4,$5,$6,$7,$8,$9,CURRENT_DATE)`,
+        [id, item.service_name_ar, item.service_name_en, item.service_code || null,
+         item.quantity, item.unit_price, item.discount_amount, item.fine_amount, item.total_amount]
+      )
+    }
+
+    await client.query('COMMIT')
+    revalidatePath('/work-orders')
+    revalidatePath(`/work-orders/${id}`)
+    redirect(`/work-orders/${id}`)
+  } catch (e) {
+    await client.query('ROLLBACK')
+    throw e
+  } finally {
+    client.release()
+  }
+}
+
 export async function deleteWorkOrder(id: string) {
   await requireSession()
+  await requirePermission('work_orders.delete')
   const client = await pool.connect()
   try {
     await client.query('BEGIN')

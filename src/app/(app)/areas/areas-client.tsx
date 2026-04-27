@@ -87,7 +87,7 @@ export function AreasClient({ rows, governorates }: { rows: Row[]; governorates:
       <DataTable data={rows} columns={columns} noDataText="لا يوجد بيانات" />
 
       <Dialog open={open} onOpenChange={(o) => { if (!o) { setNameAr(''); setNameEn(''); setGovernorateId('') } setOpen(o) }}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'تعديل' : 'إضافة'} منطقة</DialogTitle>
           </DialogHeader>

@@ -6,7 +6,7 @@ import { DataTable } from '@/components/shared/data-table'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Eye, Pencil, Trash2, Search, RefreshCw, Plus } from 'lucide-react'
+import { Eye, Pencil, Trash2, Search, RefreshCw, Plus, Printer } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatKWD } from '@/lib/format'
@@ -84,6 +84,11 @@ export function WorkOrdersClient({ rows }: { rows: WORow[] }) {
               <Pencil className="w-4 h-4" />
             </Button>
           </Link>
+          <a href={`/work-orders/${row.original.id}/print`} target="_blank" rel="noopener noreferrer">
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-[#cd7f32]" title="طباعة">
+              <Printer className="w-4 h-4" />
+            </Button>
+          </a>
           <Button
             size="icon" variant="ghost"
             className="h-8 w-8 text-red-500"

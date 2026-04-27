@@ -1,16 +1,15 @@
 'use server'
 import { pool } from '@/lib/db'
 import { requireSession } from '@/lib/session'
+import { requirePermission } from '@/lib/permissions'
 import { hashPassword } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
-// TODO: add role-based permission check
-
 const userSchema = z.object({
   full_name: z.string().min(2, 'الاسم مطلوب'),
-  email: z.string().email('البريد الإلكتروني غير صحيح'),
-  password: z.string().min(8).optional().or(z.literal('')),
+  email: z.string().min(2, 'اسم المستخدم مطلوب'),  // accepts username or email
+  password: z.string().min(6).optional().or(z.literal('')),
   role_id: z.string().uuid().optional().or(z.literal('')).or(z.literal(null)),
   office_id: z.string().uuid().optional().or(z.literal('')).or(z.literal(null)),
   is_active: z.boolean(),
@@ -27,6 +26,7 @@ export interface UserData {
 
 export async function createUser(data: UserData) {
   await requireSession()
+  await requirePermission('users.create')
   userSchema.parse(data)
   if (!data.password) throw new Error('كلمة المرور مطلوبة')
   const hash = await hashPassword(data.password)
@@ -45,7 +45,7 @@ export async function createUser(data: UserData) {
     )
   } catch (err: unknown) {
     if ((err as { code?: string }).code === '23505') {
-      throw new Error('البريد الإلكتروني مستخدم مسبقاً')
+      throw new Error('اسم المستخدم مستخدم مسبقاً')
     }
     throw err
   }
@@ -55,6 +55,7 @@ export async function createUser(data: UserData) {
 
 export async function updateUser(id: string, data: UserData) {
   await requireSession()
+  await requirePermission('users.edit')
   userSchema.parse(data)
   try {
     if (data.password) {
@@ -71,7 +72,7 @@ export async function updateUser(id: string, data: UserData) {
     }
   } catch (err: unknown) {
     if ((err as { code?: string }).code === '23505') {
-      throw new Error('البريد الإلكتروني مستخدم مسبقاً')
+      throw new Error('اسم المستخدم مستخدم مسبقاً')
     }
     throw err
   }
@@ -81,7 +82,7 @@ export async function updateUser(id: string, data: UserData) {
 
 export async function deleteUser(id: string) {
   await requireSession()
-  // TODO: add role-based permission check
+  await requirePermission('users.delete')
   await pool.query(`UPDATE app_user SET is_active = false WHERE id = $1`, [id])
   revalidatePath('/settings/users')
   return { success: true }
@@ -89,7 +90,7 @@ export async function deleteUser(id: string) {
 
 export async function sendNotificationToAll() {
   await requireSession()
-  // TODO: add role-based permission check
+  await requirePermission('users.edit')
   const result = await pool.query('SELECT id, email, full_name FROM app_user WHERE is_active = true')
   console.log(`[sendNotificationToAll] Sending notification to ${result.rows.length} users:`, result.rows.map(u => u.email))
   return { success: true }

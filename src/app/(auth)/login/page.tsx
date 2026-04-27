@@ -86,9 +86,9 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email">{t('email')}</Label>
-              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="admin@system.com" required dir="ltr" className="text-left" />
+              <Label htmlFor="email">اسم المستخدم</Label>
+              <Input id="email" type="text" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="username أو email@domain" required dir="ltr" className="text-left" autoComplete="username" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">{t('password')}</Label>

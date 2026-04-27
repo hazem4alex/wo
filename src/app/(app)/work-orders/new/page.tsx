@@ -3,16 +3,7 @@ import { PageHeader } from '@/components/shared/page-header'
 import { WorkOrderForm } from '@/components/work-orders/work-order-form'
 
 export default async function NewWorkOrderPage() {
-  const [consumersRes, govRes, areasRes, officesRes, supervisorsRes, servicesRes, paymentRes] = await Promise.all([
-    pool.query(`
-      SELECT c.id, c.full_name, c.consumer_code, c.consumer_no, c.national_id, c.phone,
-             c.street, c.house_no, c.apartment_no,
-             c.area_id, c.office_id,
-             a.governorate_id
-      FROM consumer c
-      LEFT JOIN area a ON c.area_id = a.id
-      WHERE c.is_active=true ORDER BY c.full_name LIMIT 1000
-    `),
+  const [govRes, areasRes, officesRes, supervisorsRes, servicesRes, paymentRes] = await Promise.all([
     pool.query('SELECT id, name_ar FROM governorate ORDER BY name_ar'),
     pool.query('SELECT id, name_ar, governorate_id FROM area ORDER BY name_ar'),
     pool.query('SELECT id, name_ar, area_id FROM office WHERE is_active=true ORDER BY name_ar'),
@@ -28,7 +19,6 @@ export default async function NewWorkOrderPage() {
         breadcrumb={[{ label: 'الرئيسية', href: '/dashboard' }, { label: 'اوامر العمل', href: '/work-orders' }, { label: 'إضافة' }]}
       />
       <WorkOrderForm
-        consumers={consumersRes.rows}
         governorates={govRes.rows}
         areas={areasRes.rows}
         offices={officesRes.rows}

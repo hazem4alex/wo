@@ -8,10 +8,11 @@ interface AppShellProps {
   theme: string
   userName: string
   systemName: string
+  permissions: Record<string, boolean>
   children: React.ReactNode
 }
 
-export function AppShell({ locale, theme, userName, systemName, children }: AppShellProps) {
+export function AppShell({ locale, theme, userName, systemName, permissions, children }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
 
@@ -29,6 +30,7 @@ export function AppShell({ locale, theme, userName, systemName, children }: AppS
         onMobileClose={() => setMobileOpen(false)}
         collapsed={collapsed}
         onToggleCollapse={() => setCollapsed(c => !c)}
+        permissions={permissions}
       />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <TopBar

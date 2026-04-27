@@ -3,9 +3,11 @@ import { useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/components/shared/data-table'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { ShieldCheck } from 'lucide-react'
-import { updateRolePermissions } from '@/lib/actions/roles'
+import { ShieldCheck, Plus, Trash2 } from 'lucide-react'
+import { updateRolePermissions, createRole, deleteRole } from '@/lib/actions/roles'
 import { useRouter } from 'next/navigation'
 
 interface RoleRow {
@@ -34,7 +36,7 @@ interface Props {
 }
 
 const MODULE_LABELS: Record<string, string> = {
-  work_orders: 'أوامر العمل',
+  workOrders: 'أوامر العمل',
   consumers: 'المستهلكون',
   users: 'المستخدمون',
   reports: 'التقارير',
@@ -43,6 +45,8 @@ const MODULE_LABELS: Record<string, string> = {
   supervisors: 'المشرفون',
   offices: 'المكاتب',
   dashboard: 'لوحة التحكم',
+  areas: 'المناطق',
+  governorates: 'المحافظات',
 }
 
 export function RolesClient({ roles, permissions, rolePermissions }: Props) {
@@ -50,6 +54,31 @@ export function RolesClient({ roles, permissions, rolePermissions }: Props) {
   const [selectedRole, setSelectedRole] = useState<RoleRow | null>(null)
   const [checkedPerms, setCheckedPerms] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(false)
+  const [addOpen, setAddOpen] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newDesc, setNewDesc] = useState('')
+
+  const handleCreate = async () => {
+    if (!newName.trim()) { alert('اسم الدور مطلوب'); return }
+    setLoading(true)
+    try {
+      await createRole(newName, newDesc)
+      setAddOpen(false); setNewName(''); setNewDesc('')
+      router.refresh()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'خطأ')
+    } finally { setLoading(false) }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذا الدور؟')) return
+    try {
+      await deleteRole(id)
+      router.refresh()
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'خطأ')
+    }
+  }
 
   const openPermissionsModal = (role: RoleRow) => {
     setSelectedRole(role)
@@ -111,25 +140,66 @@ export function RolesClient({ roles, permissions, rolePermissions }: Props) {
       id: 'actions',
       header: 'إجراء',
       cell: ({ row }) => (
-        <Button
-          size="sm"
-          variant="outline"
-          className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50"
-          onClick={() => openPermissionsModal(row.original)}
-        >
-          <ShieldCheck className="w-4 h-4" />
-          تعديل الصلاحيات
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+            onClick={() => openPermissionsModal(row.original)}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            تعديل الصلاحيات
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 text-red-500"
+            onClick={() => handleDelete(row.original.id)}
+            title="حذف الدور"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
       ),
     },
   ]
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+      <div className="flex justify-end mb-4">
+        <Button onClick={() => setAddOpen(true)} className="bg-[#cd7f32] hover:bg-[#b56b20] text-white gap-2">
+          <Plus className="w-4 h-4" /> إضافة دور
+        </Button>
+      </div>
       <DataTable data={roles} columns={columns} noDataText="لا يوجد أدوار" />
 
+      {/* Add role dialog */}
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>إضافة دور جديد</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label>اسم الدور <span className="text-red-500">*</span></Label>
+              <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="مثال: مشرف، مراجع، فني" />
+            </div>
+            <div className="space-y-1">
+              <Label>الوصف</Label>
+              <Input value={newDesc} onChange={e => setNewDesc(e.target.value)} />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setAddOpen(false)}>إلغاء</Button>
+              <Button onClick={handleCreate} disabled={loading} className="bg-[#cd7f32] hover:bg-[#b56b20] text-white">
+                {loading ? '...' : 'حفظ'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!selectedRole} onOpenChange={open => { if (!open) setSelectedRole(null) }}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>صلاحيات دور: {selectedRole?.name}</DialogTitle>
           </DialogHeader>

@@ -42,3 +42,11 @@ next-env.d.ts
 
 # superpowers
 .superpowers/
+
+# Claude Code local settings (may contain credentials in shell history)
+.claude/
+
+# Python helper scripts may import secrets via env, but ignore any pyc/venv
+__pycache__/
+*.pyc
+.venv/

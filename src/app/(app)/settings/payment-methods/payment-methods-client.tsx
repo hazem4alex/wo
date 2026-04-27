@@ -72,7 +72,7 @@ export function PaymentMethodsClient({ rows }: { rows: Row[] }) {
       <DataTable data={rows} columns={columns} noDataText="لا يوجد بيانات" />
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'تعديل' : 'إضافة'} طريقة دفع</DialogTitle>
           </DialogHeader>

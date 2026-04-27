@@ -40,7 +40,7 @@ export function WorkOrderStatusModal({ workOrderId, currentStatus }: { workOrder
         تغيير الحالة
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>تغيير الحالة</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1">
