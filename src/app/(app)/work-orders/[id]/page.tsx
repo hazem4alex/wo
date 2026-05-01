@@ -24,7 +24,7 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
   const [woRes, itemsRes, eventsRes] = await Promise.all([
     pool.query(`
       SELECT wo.*,
-             c.full_name as consumer_name, c.national_id, c.phone as consumer_phone,
+             c.full_name as consumer_name, c.national_id, COALESCE(wo.consumer_phone, c.phone) as display_consumer_phone,
              c.consumer_code, c.consumer_no, c.electricity_meter_no as consumer_elec_meter,
              c.water_meter_no as consumer_water_meter,
              c.street as consumer_street, c.house_no as consumer_house_no, c.apartment_no as consumer_apt_no,
@@ -129,7 +129,7 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
                 <Field label="اسم المستهلك" value={wo.consumer_name} />
                 <Field label="كود المستهلك" value={wo.consumer_code} />
                 <Field label="الرقم المدني" value={wo.national_id} />
-                <Field label="رقم الهاتف" value={wo.consumer_phone} />
+                <Field label="رقم الهاتف" value={wo.display_consumer_phone} />
                 <Field label="المحافظة" value={wo.governorate_name} />
                 <Field label="المنطقة" value={wo.area_name} />
                 <Field label="المكتب" value={wo.office_name} />

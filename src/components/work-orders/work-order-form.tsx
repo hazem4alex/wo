@@ -256,6 +256,7 @@ interface InitialData {
   work_order_no: string
   work_order_code: string | null
   consumer_id: string
+  consumer_phone?: string | null
   consumer: Consumer | null
   governorate_id: string | null
   area_id: string | null
@@ -270,13 +271,22 @@ interface InitialData {
   automated_figure: string | null
   electricity_meter_old_no: string | null
   electricity_meter_new_no: string | null
-  electricity_old_reading: number | null
-  electricity_new_reading: number | null
+  electricity_old_reading: number | string | null
+  electricity_new_reading: number | string | null
   water_meter_old_no: string | null
   water_meter_new_no: string | null
-  water_old_reading: number | null
-  water_new_reading: number | null
+  water_old_reading: number | string | null
+  water_new_reading: number | string | null
   items: BillingItem[]
+}
+
+function normalizeDecimalInput(value: string): string {
+  return normalizeNums(value).replace(/[٫]/g, '.').replace(/[٬,]/g, '')
+}
+
+function formatReadingInput(value: number | string | null | undefined): string {
+  if (value == null) return ''
+  return String(value).replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '')
 }
 
 export function WorkOrderForm({ governorates, areas, offices, supervisors, services, paymentMethods, initialData }: {
@@ -315,16 +325,16 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
   const [street, setStreet] = useState(init?.street ?? '')
   const [houseNo, setHouseNo] = useState(init?.house_no ?? '')
   const [apartmentNo, setApartmentNo] = useState(init?.apartment_no ?? '')
-  const [consumerPhone, setConsumerPhone] = useState(init?.consumer?.phone ?? '')
+  const [consumerPhone, setConsumerPhone] = useState(init?.consumer_phone ?? init?.consumer?.phone ?? '')
   const [automatedFigure, setAutomatedFigure] = useState(init?.automated_figure ?? '')
   const [elecOldNo, setElecOldNo] = useState(init?.electricity_meter_old_no ?? '')
   const [elecNewNo, setElecNewNo] = useState(init?.electricity_meter_new_no ?? '')
-  const [elecOldReading, setElecOldReading] = useState(init?.electricity_old_reading != null ? String(init.electricity_old_reading) : '')
-  const [elecNewReading, setElecNewReading] = useState(init?.electricity_new_reading != null ? String(init.electricity_new_reading) : '')
+  const [elecOldReading, setElecOldReading] = useState(formatReadingInput(init?.electricity_old_reading))
+  const [elecNewReading, setElecNewReading] = useState(formatReadingInput(init?.electricity_new_reading))
   const [waterOldNo, setWaterOldNo] = useState(init?.water_meter_old_no ?? '')
   const [waterNewNo, setWaterNewNo] = useState(init?.water_meter_new_no ?? '')
-  const [waterOldReading, setWaterOldReading] = useState(init?.water_old_reading != null ? String(init.water_old_reading) : '')
-  const [waterNewReading, setWaterNewReading] = useState(init?.water_new_reading != null ? String(init.water_new_reading) : '')
+  const [waterOldReading, setWaterOldReading] = useState(formatReadingInput(init?.water_old_reading))
+  const [waterNewReading, setWaterNewReading] = useState(formatReadingInput(init?.water_new_reading))
   const [items, setItems] = useState<BillingItem[]>(init?.items ?? [])
 
   const filteredAreas = areas.filter(a => a.governorate_id === governorateId)
@@ -422,18 +432,19 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
         manual_ref: manualRef || undefined,
         order_date: orderDate || undefined,
         automated_figure: automatedFigure || undefined,
+        consumer_phone: consumerPhone || undefined,
         notes,
         street: street || undefined,
         house_no: houseNo || undefined,
         apartment_no: apartmentNo || undefined,
         electricity_meter_old_no: elecOldNo || undefined,
         electricity_meter_new_no: elecNewNo || undefined,
-        electricity_old_reading: elecOldReading ? Number(elecOldReading) : 0,
-        electricity_new_reading: elecNewReading ? Number(elecNewReading) : undefined,
+        electricity_old_reading: elecOldReading ? Number(normalizeDecimalInput(elecOldReading)) : undefined,
+        electricity_new_reading: elecNewReading ? Number(normalizeDecimalInput(elecNewReading)) : undefined,
         water_meter_old_no: waterOldNo || undefined,
         water_meter_new_no: waterNewNo || undefined,
-        water_old_reading: waterOldReading ? Number(waterOldReading) : 0,
-        water_new_reading: waterNewReading ? Number(waterNewReading) : undefined,
+        water_old_reading: waterOldReading ? Number(normalizeDecimalInput(waterOldReading)) : undefined,
+        water_new_reading: waterNewReading ? Number(normalizeDecimalInput(waterNewReading)) : undefined,
         items,
       }
       if (init?.id) {
@@ -539,7 +550,7 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>رقم التلفون</Label>
-              <Input value={consumerPhone} readOnly dir="ltr" className="bg-muted/60 text-muted-foreground font-mono" placeholder="-" />
+              <Input value={consumerPhone} onChange={e => setConsumerPhone(e.target.value)} dir="ltr" className="font-mono" placeholder="رقم التلفون" />
             </div>
             <div className="space-y-1">
               <Label>الرقم الآلي للعنوان</Label>
@@ -620,8 +631,8 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1"><Label>الرقم القديم</Label><Input value={elecOldNo} onChange={e => setElecOldNo(e.target.value)} dir="ltr" placeholder="رقم العداد القديم" /></div>
               <div className="space-y-1"><Label>الرقم الجديد</Label><Input value={elecNewNo} onChange={e => setElecNewNo(e.target.value)} dir="ltr" placeholder="رقم العداد الجديد" /></div>
-              <div className="space-y-1"><Label>القراءة القديمة</Label><Input type="number" step="0.001" value={elecOldReading} onChange={e => setElecOldReading(e.target.value)} dir="ltr" /></div>
-              <div className="space-y-1"><Label>القراءة الجديدة</Label><Input type="number" step="0.001" value={elecNewReading} onChange={e => setElecNewReading(e.target.value)} dir="ltr" /></div>
+              <div className="space-y-1"><Label>القراءة القديمة</Label><Input inputMode="decimal" value={elecOldReading} onChange={e => setElecOldReading(normalizeDecimalInput(e.target.value))} dir="ltr" /></div>
+              <div className="space-y-1"><Label>القراءة الجديدة</Label><Input inputMode="decimal" value={elecNewReading} onChange={e => setElecNewReading(normalizeDecimalInput(e.target.value))} dir="ltr" /></div>
             </div>
           </div>
           <div>
@@ -632,8 +643,8 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1"><Label>الرقم القديم</Label><Input value={waterOldNo} onChange={e => setWaterOldNo(e.target.value)} dir="ltr" placeholder="رقم العداد القديم" /></div>
               <div className="space-y-1"><Label>الرقم الجديد</Label><Input value={waterNewNo} onChange={e => setWaterNewNo(e.target.value)} dir="ltr" placeholder="رقم العداد الجديد" /></div>
-              <div className="space-y-1"><Label>القراءة القديمة</Label><Input type="number" step="0.001" value={waterOldReading} onChange={e => setWaterOldReading(e.target.value)} dir="ltr" /></div>
-              <div className="space-y-1"><Label>القراءة الجديدة</Label><Input type="number" step="0.001" value={waterNewReading} onChange={e => setWaterNewReading(e.target.value)} dir="ltr" /></div>
+              <div className="space-y-1"><Label>القراءة القديمة</Label><Input inputMode="decimal" value={waterOldReading} onChange={e => setWaterOldReading(normalizeDecimalInput(e.target.value))} dir="ltr" /></div>
+              <div className="space-y-1"><Label>القراءة الجديدة</Label><Input inputMode="decimal" value={waterNewReading} onChange={e => setWaterNewReading(normalizeDecimalInput(e.target.value))} dir="ltr" /></div>
             </div>
           </div>
         </CardContent>

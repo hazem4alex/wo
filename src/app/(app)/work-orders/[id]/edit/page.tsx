@@ -75,6 +75,7 @@ export default async function EditWorkOrderPage({ params }: { params: Promise<{ 
           work_order_no: wo.work_order_no,
           work_order_code: wo.work_order_code,
           consumer_id: wo.consumer_id,
+          consumer_phone: wo.consumer_phone,
           consumer,
           governorate_id: wo.governorate_id,
           area_id: wo.area_id,

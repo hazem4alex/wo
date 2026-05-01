@@ -24,6 +24,11 @@ function fmt(n: number | string | null | undefined): string {
   return v.toFixed(3)
 }
 
+function fmtReading(n: number | string | null | undefined): string {
+  if (n == null || n === '') return ''
+  return String(n).replace(/(\.\d*?[1-9])0+$/, '$1').replace(/\.0+$/, '')
+}
+
 // A simple labelled field (label on the right in RTL, value to the left of it,
 // joined by a dotted line — matches the reference printout style)
 function Row({ label, value, valueAlign = 'start' }: {
@@ -51,6 +56,17 @@ function CompactPair({ label, value, last }: { label: string; value?: React.Reac
   )
 }
 
+function MeterPair({ label, value }: { label: string; value?: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-[70px_minmax(72px,1fr)] items-baseline gap-2 min-w-0">
+      <div className="text-[11px] text-gray-700 underline underline-offset-2 decoration-gray-300 whitespace-nowrap">{label}</div>
+      <div className="text-[12px] text-black border-b border-dotted border-gray-400 px-1 pb-0.5 text-center min-h-[18px] min-w-0 overflow-hidden">
+        {value || <span>&nbsp;</span>}
+      </div>
+    </div>
+  )
+}
+
 export default async function WorkOrderPrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const session = await getSession()
@@ -58,7 +74,7 @@ export default async function WorkOrderPrintPage({ params }: { params: Promise<{
   const [woRes, itemsRes] = await Promise.all([
     pool.query(
       `SELECT wo.*,
-              c.full_name AS consumer_name, c.national_id, c.phone AS consumer_phone,
+              c.full_name AS consumer_name, c.national_id, COALESCE(wo.consumer_phone, c.phone) AS display_consumer_phone,
               c.consumer_code, c.consumer_no,
               c.street AS consumer_street, c.house_no AS consumer_house, c.apartment_no AS consumer_apt,
               s.full_name AS supervisor_name,
@@ -136,7 +152,7 @@ export default async function WorkOrderPrintPage({ params }: { params: Promise<{
         .print-page h1, .print-page h2, .print-page h3 { color: #111; }
       `}</style>
 
-      <div className="print-page mx-auto bg-white" style={{ maxWidth: '210mm', minHeight: '290mm', padding: '6mm 6mm 10mm', direction: 'rtl' }}>
+      <div className="print-page mx-auto bg-white relative" style={{ maxWidth: '210mm', minHeight: '290mm', padding: '6mm 6mm 36mm', direction: 'rtl' }}>
         {/* Header */}
         <div className="text-center mb-3">
           <h1 className="text-[16px] font-bold mb-0.5">دولة الكويت</h1>
@@ -185,7 +201,7 @@ export default async function WorkOrderPrintPage({ params }: { params: Promise<{
             <CompactPair label="جادة" value={town} />
             <CompactPair label="شارع" value={street} />
             <CompactPair label="منزل" value={house} />
-            <CompactPair label="رقم التلفون" value={wo.consumer_phone} />
+            <CompactPair label="رقم التلفون" value={wo.display_consumer_phone} />
             <CompactPair label="الرقم الآلي للعنوان" value={automatedFig} />
             <CompactPair label="الرقم الآلي للشقة" value={wo.consumer_apt} last />
           </div>
@@ -234,26 +250,26 @@ export default async function WorkOrderPrintPage({ params }: { params: Promise<{
           </div>
         </section>
 
-        {/* Meters — only render if any value present, 4 columns */}
+        {/* Meters — only render if any value present */}
         {(wo.electricity_meter_old_no || wo.electricity_meter_new_no || wo.electricity_old_reading != null || wo.electricity_new_reading != null
           || wo.water_meter_old_no || wo.water_meter_new_no || wo.water_old_reading != null || wo.water_new_reading != null) && (
           <section className="mb-3">
             <h3 className="text-[13px] font-bold mb-1.5 underline underline-offset-2 decoration-gray-400">بيانات عدادات عنوان امر العمل</h3>
-            <div className="grid grid-cols-4 gap-x-4">
-              <Row label="كهرباء حالي" value={wo.electricity_meter_old_no} valueAlign="center" />
-              <Row label="قراءة حالية" value={wo.electricity_old_reading != null ? fmt(wo.electricity_old_reading) : ''} valueAlign="center" />
-              <Row label="كهرباء جديد" value={wo.electricity_meter_new_no} valueAlign="center" />
-              <Row label="قراءة جديدة" value={wo.electricity_new_reading != null ? fmt(wo.electricity_new_reading) : ''} valueAlign="center" />
-              <Row label="مياه حالي" value={wo.water_meter_old_no} valueAlign="center" />
-              <Row label="قراءة حالية" value={wo.water_old_reading != null ? fmt(wo.water_old_reading) : ''} valueAlign="center" />
-              <Row label="مياه جديد" value={wo.water_meter_new_no} valueAlign="center" />
-              <Row label="قراءة جديدة" value={wo.water_new_reading != null ? fmt(wo.water_new_reading) : ''} valueAlign="center" />
+            <div className="grid grid-cols-4 gap-x-8 gap-y-2">
+              <MeterPair label="كهرباء حالي" value={wo.electricity_meter_old_no} />
+              <MeterPair label="قراءة حالية" value={fmtReading(wo.electricity_old_reading)} />
+              <MeterPair label="كهرباء جديد" value={wo.electricity_meter_new_no} />
+              <MeterPair label="قراءة جديدة" value={fmtReading(wo.electricity_new_reading)} />
+              <MeterPair label="مياه حالي" value={wo.water_meter_old_no} />
+              <MeterPair label="قراءة حالية" value={fmtReading(wo.water_old_reading)} />
+              <MeterPair label="مياه جديد" value={wo.water_meter_new_no} />
+              <MeterPair label="قراءة جديدة" value={fmtReading(wo.water_new_reading)} />
             </div>
           </section>
         )}
 
-        {/* Signatures — compact in 3 cols */}
-        <section className="mt-4 grid grid-cols-3 gap-x-6 gap-y-3 text-[12px]">
+        {/* Signatures */}
+        <section className="absolute inset-x-6 bottom-[22mm] grid grid-cols-3 gap-x-6 gap-y-3 text-[12px]">
           <Row label="اسم منفذ امر العمل" value="" />
           <Row label="توقيع منفذ" value="" />
           <Row label="توقيع مراقب الشركة" value="" />
