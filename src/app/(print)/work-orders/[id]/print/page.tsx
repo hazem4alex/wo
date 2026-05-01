@@ -165,13 +165,12 @@ export default async function WorkOrderPrintPage({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Consumer Info — compact 3 fields in one row */}
+        {/* Consumer Info */}
         <section className="mb-3">
           <h3 className="text-[13px] font-bold mb-1.5 underline underline-offset-2 decoration-gray-400">بيانات المستهلك</h3>
-          <div className="grid grid-cols-3 gap-x-6">
+          <div className="grid grid-cols-2 gap-x-6">
             <Row label="الاسم" value={wo.consumer_name} />
             <Row label="الرقم المدني" value={wo.national_id} valueAlign="center" />
-            <Row label="رقم التلفون" value={wo.consumer_phone} valueAlign="center" />
           </div>
         </section>
 
@@ -186,6 +185,7 @@ export default async function WorkOrderPrintPage({ params }: { params: Promise<{
             <CompactPair label="جادة" value={town} />
             <CompactPair label="شارع" value={street} />
             <CompactPair label="منزل" value={house} />
+            <CompactPair label="رقم التلفون" value={wo.consumer_phone} />
             <CompactPair label="الرقم الآلي للعنوان" value={automatedFig} />
             <CompactPair label="الرقم الآلي للشقة" value={wo.consumer_apt} last />
           </div>

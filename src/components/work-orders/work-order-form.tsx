@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Trash2, Search, X } from 'lucide-react'
+import { Trash2, Search, X } from 'lucide-react'
 import { createWorkOrder, updateWorkOrder } from '@/lib/actions/work-orders'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -315,6 +315,7 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
   const [street, setStreet] = useState(init?.street ?? '')
   const [houseNo, setHouseNo] = useState(init?.house_no ?? '')
   const [apartmentNo, setApartmentNo] = useState(init?.apartment_no ?? '')
+  const [consumerPhone, setConsumerPhone] = useState(init?.consumer?.phone ?? '')
   const [automatedFigure, setAutomatedFigure] = useState(init?.automated_figure ?? '')
   const [elecOldNo, setElecOldNo] = useState(init?.electricity_meter_old_no ?? '')
   const [elecNewNo, setElecNewNo] = useState(init?.electricity_meter_new_no ?? '')
@@ -348,8 +349,10 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
     setConsumerId(id)
     setConsumerAddresses([])
     setSelectedAddrId('')
+    setConsumerPhone(c?.phone ?? '')
     if (!id) {
       setStreet(''); setHouseNo(''); setApartmentNo('')
+      setConsumerPhone('')
       return
     }
     // First fill from consumer record itself as a fallback
@@ -533,9 +536,15 @@ export function WorkOrderForm({ governorates, areas, offices, supervisors, servi
               <Input value={apartmentNo} onChange={e => setApartmentNo(e.target.value)} dir="ltr" />
             </div>
           </div>
-          <div className="space-y-1">
-            <Label>الرقم الآلي للعنوان</Label>
-            <Input value={automatedFigure} onChange={e => setAutomatedFigure(e.target.value)} dir="ltr" className="font-mono" placeholder="automated figure" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label>رقم التلفون</Label>
+              <Input value={consumerPhone} readOnly dir="ltr" className="bg-muted/60 text-muted-foreground font-mono" placeholder="-" />
+            </div>
+            <div className="space-y-1">
+              <Label>الرقم الآلي للعنوان</Label>
+              <Input value={automatedFigure} onChange={e => setAutomatedFigure(e.target.value)} dir="ltr" className="font-mono" placeholder="automated figure" />
+            </div>
           </div>
 
           {/* Location cascade */}
